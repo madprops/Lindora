@@ -530,3 +530,8 @@ input[type='button']
     padding-top:0.2em;
     padding-bottom:0.2em;
 }
+
+.help_item
+{
+    padding-bottom: 1em;
+}
