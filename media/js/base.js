@@ -694,7 +694,6 @@ function save_session()
             $(this).remove();
         }
     })
-    console.log($clone.html());
     $.post('/save_session/',
         {
             content: $clone.html(),
@@ -807,6 +806,7 @@ function move_file_left()
             if(i !== 0)
             {
                 current_container.files.move(i, i - 1)
+                break;
             }
         }
     }
@@ -821,6 +821,7 @@ function move_file_right()
             if(i !== (current_container.files.length -1))
             {
                 current_container.files.move(i, i + 1)
+                break;
             }
         }
     }
@@ -1966,7 +1967,6 @@ function activate_key_detection()
                 // , - next file
                 if(code == 188)
                 {
-                    console.log('s1');
                     next();
                     e.preventDefault();
                 }             
@@ -2397,14 +2397,12 @@ function open_file(name, container)
     {
         if(files[i].name === name)
         {
-            console.log('s1');
             if(files[i].container !== container)
             {
                 clone_file(files[i], container)
             }
             else
             {
-                console.log('s2');
                 for(var i=0; i<files_to_open.length; i++)
                 {
                     var f = files_to_open[i];
