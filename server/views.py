@@ -153,19 +153,19 @@ def demo_session():
 	                <div id="header0" class="header" style="font-size: 18px; color: rgb(230, 230, 230); font-family: sans-serif;">
 	        
 	            
-	                <div class="tab" id="0^/to/views.py" title="/to/views.py"> views.py </div>
+	                <div class="tab" id="0^/""" + username + """/views.py" title="/""" + username + """/views.py"> views.py </div>
 	            
 	        
 	            
-	                <div class="tab" id="0^/to/main.html" title="/to/main.html"> main.html </div>
+	                <div class="tab" id="0^/""" + username + """/main.html" title="/""" + username + """/main.html"> main.html </div>
 	            
 	        
 	            
-	                <div class="tab" id="0^/to/base.js" title="/to/base.js"> base.js </div>
+	                <div class="tab" id="0^/""" + username + """/base.js" title="/""" + username + """/base.js"> base.js </div>
 	            
 	        
 	            
-	                <div class="selected_tab tab" id="0^/to/style.css" title="/to/style.css"> style.css </div>
+	                <div class="selected_tab tab" id="0^/""" + username + """/style.css" title="/""" + username + """/style.css"> style.css </div>
 	            
 	        
 	    </div>
