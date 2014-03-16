@@ -1,0 +1,532 @@
+body,html
+{
+    background-color:#2D2D2D;
+    color:white;
+    font-size:14px;
+    font-family: sans-serif;
+    height: 100%;
+    margin:0px;
+    overflow-x: hidden;
+    overflow-y:hidden;
+}
+#main 
+{
+    margin:0px;
+    padding:0px;
+    height: 100%;
+    width: 100% auto;
+}
+a:link, a:visited, a:hover 
+{
+    color: black;
+    text-decoration: none;
+    font-size:14px;
+    margin: 0px;
+    display: block;
+}
+a.item:link, a.item:visited, a.item:hover 
+{
+    color: black;
+    text-decoration: none;
+    font-size:14px;
+    margin: 0px;
+    display: block;
+    padding-bottom:18px;
+}
+a.header:link, a.header:visited, a.header:hover 
+{
+    color: #E6E6E6;
+    text-decoration: none;
+    font-size:10px;
+    margin:0px;
+}
+a.ftp_file_link:link, a.ftp_file_link:visited, a.ftp_file_link:hover 
+{
+    color: black;
+    text-decoration: none;
+    font-size:14px;
+    margin-left:0px;
+    margin-right:30px;
+    padding-left:0px;
+    padding-right:0px;
+    display:block;
+    padding-bottom:10px;
+    padding-left:8px;
+} 
+a.ftp_directory_link:link, a.ftp_directory_link:visited, a.ftp_directory_link:hover 
+{
+    color: black;
+    text-decoration: none;
+    font-size:14px;
+    margin-left:0px;
+    margin-right:30px;
+    padding-left:0px;
+    padding-right:0px;
+    padding-bottom:2px;
+    padding-left:8px;
+    margin-top:-8px;
+    font-weight: italic;
+    display:block;
+}
+#outer_menu
+{
+    background-color: white;
+    position: fixed;
+    top:50%;
+    left: 50%;
+    width:34em;
+    height:22em;
+    margin-top: -11em; /*set to a negative number 1/2 of your height*/
+    margin-left: -17em; /*set to a negative number 1/2 of your width*/
+    border: 0.9px solid #7D7D7D;
+    color:black;
+    overflow-y: auto;
+    overflow-x: auto;  
+    z-index: 10000;
+}
+#menu
+{
+    max-width: 100%;
+    max-height: 100%;
+    padding:10px;
+}
+#menu_overlay
+{
+    background-color: rgba(20,20,20,0.7);;
+    position: fixed;
+    top:50%;
+    left: 50%;
+    width:34em;
+    height:22em;
+    margin-top: -11em; /*set to a negative number 1/2 of your height*/
+    margin-left: -17em; /*set to a negative number 1/2 of your width*/
+    border: 0.9px solid rgba(20,20,20,0.7);
+    color:black;
+    overflow-y: auto;
+    overflow-x: auto;  
+    z-index: 900000;
+    visibility: hidden;
+    background-image: url('/media/img/loading.gif');
+    background-repeat:no-repeat;
+    background-position: center center;
+}
+#ftp_files
+{
+    padding-top:10px;
+}
+.outer_header
+{
+    padding-top:0.9em;
+    padding-bottom:0.9em;
+    padding-left:0.33em;
+    margin:0px;
+    background-color: #1D1D1D;
+    max-width:100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    outline:none;
+}
+.editor
+{
+    height: 100%;
+    width: 100% auto;
+    margin:0px;
+    clear:both;
+    font-size: 16px;
+}
+#separator
+{
+    float:left;
+}
+#filelist
+{
+   
+}
+#controls
+{
+    width:100% auto;
+}
+.control
+{
+    padding-right:2em;
+    padding-top:0.3em;
+    float:left;
+}
+.unselectable
+{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.table
+{
+    display:  table;
+    width:100% auto;
+    border-spacing:0px 18px;
+    outline:none;
+   /* border-collapse:separate;*/
+}
+.row
+{
+   display:table-row;
+   min-width: 100%;
+   outline:none;
+}
+
+.cell
+{
+    float:left;/*fix for  buggy browsers*/
+    display:table-column;
+    width:50%;
+    outline:none;
+}
+.container
+{
+    float:left;
+    width: 100%;
+    height: 100%;
+    margin:0;
+    padding:0;
+    outline:none;
+}
+.heading
+{
+    font-size: 14px;
+    font-weight: bold;
+    padding-bottom: 20px;
+}
+.separator
+{
+    padding-bottom:10px;
+}
+#msg
+{
+    float:right;
+    font-size:12px;
+    padding-right:11px;
+}
+.inputpath
+{
+    width:90%;
+    border:0px;
+    outline:none;
+    font-size: 14px;
+    display:inline;
+}
+
+.contextMenu {
+    position: absolute;
+    width: 100px auto;
+    z-index: 99999999999;
+    border: solid 1px #CCC;
+    background: #EEE;
+    padding: 0px;
+    margin: 0px;
+    display: none;
+}
+
+.contextMenu LI {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+    width:100% auto;
+}
+
+.contextMenu A {
+    color: #333;
+    text-decoration: none;
+    display: block;
+    line-height: 20px;
+    height: 20px;
+    background-position: 6px center;
+    background-repeat: no-repeat;
+    outline: none;
+    padding-top:2px;
+    padding-bottom:2px;
+    padding-left:12px;
+    padding-right:12px;
+    width:100% auto;
+    font-size: 12px;
+}
+
+.contextMenu LI.hover A {
+    color: #FFF;
+    background-color: #3399FF;
+}
+
+.contextMenu LI.disabled A {
+    color: #AAA;
+    cursor: default;
+}
+
+.contextMenu LI.hover.disabled A {
+    background-color: transparent;
+}
+
+.contextMenu LI.separator {
+    border-top: solid 1px #CCC;
+}
+
+.wrapper
+{
+    float:left;
+}
+
+.holder
+{
+    margin:0;
+    padding:0;
+}
+iframe
+{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    outline: none;
+    border: none;
+}
+.viewport
+{
+     margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    outline: none;
+    border: none;   
+}
+.ui-layout-pane-center
+{
+    margin: 0px important!;
+    padding:0px important!;
+}
+.ui-layout-pane-north
+{
+    margin: 0px important!;
+    padding:0px important!;
+}
+.ui-layout-pane-south
+{
+    margin: 0px important!;
+    padding:0px important!;
+}
+.ui-layout-pane-east
+{
+    margin: 0px important!;
+    padding:0px important!;
+}
+.ui-layout-pane-west
+{
+    margin: 0px important!;
+    padding:0px important!;
+}
+.ui-layout-pane
+{
+    margin: 0px important!;
+    padding:0px important!;
+}
+.ruler
+{
+    width:30px;
+    height: 400px;
+    background-color:#E6E36B;
+    z-index: 9999;
+    position: absolute;
+    border: 1px solid #772E2E;
+    top:100px;
+    left:50%;
+}
+.ruler_info
+{
+    padding:4px;
+    color: #505050;
+    text-shadow: -1px 0 #CECECE, 0 1px #CECECE, 1px 0 #CECECE, 0 -1px #CECECE;
+    line-height: 20px;
+}
+#keycode
+{
+    padding:20px;
+    font-size:18px;
+    font-weight: bold;
+}
+.result
+{
+    resize:none;
+    width:98.4%;
+}
+.tab
+{
+    float: left;
+    padding-right:1.7em;
+    cursor:pointer;
+}
+.selected_tab
+{
+    float: left;
+    padding-right:1.7em;
+    cursor:pointer;  
+    font-weight: bold;  
+}
+
+.v1
+{
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.v08
+{
+    padding-top: 0.8em;
+    padding-bottom: 0.8em;
+}
+
+.v06
+{
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
+}
+
+.v03
+{
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+}
+
+.v15
+{
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+}
+
+.v2
+{
+    padding-top: 2em;
+    padding-bottom: 2em;
+}
+
+.suggestions_holder
+{
+    width: 16em;
+    max-height: 8em;
+    border: 0.09em solid black;
+    z-index: 9999;
+    position: fixed;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: white;
+}
+
+.suggestion_item
+{
+    width: 100%;
+    height: 100%;
+    color: #353535;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    padding-left: 0.5em;
+}
+.suggestion_item_selected
+{
+    width: 100%;
+    height: 100%;
+    color: #353535;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    padding-left: 0.5em;
+    background-color: #EAECFA;
+}
+
+.symbols_holder
+{
+    width: 20%;
+    max-height: 8em;
+    border: 0.09em solid black;
+    z-index: 9999;
+    position: fixed;
+    background-color: white;
+    top: 0;
+    left: 50%;
+    margin: 0 0 0 -10.0%;
+}
+
+.symbols
+{
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.symbol_item
+{
+    width: 100%;
+    height: 100%;
+    color: #353535;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    padding-left: 0.5em;
+}
+.symbol_item_selected
+{
+    width: 100%;
+    height: 100%;
+    color: #353535;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    padding-left: 0.5em;
+    background-color: #EAECFA;
+}
+.symbols_input
+{
+    width: 93%;
+    padding: 0.3em;
+    outline: none;
+    border: 0px;
+}
+input[type='button']
+{
+    background-color: white;
+    outline: none;
+    border: 0.9px solid;
+    border-color: #CECECE;
+    color:black;
+    font-size: 1em;
+}
+.loading
+{
+    padding-top:0.8em;
+    padding-left: 0.4em;
+    font-size: 1.4em;
+    letter-spacing: 0.14em;
+}
+
+.cozy
+{
+    padding: 0.3em;
+    font-size: 1em;
+    letter-spacing: 0.14em
+}
+
+.login_title
+{
+    font-size: 1.8em;
+    color: #E6E6E6;
+    letter-spacing: 0.14em;
+}
+
+.small
+{
+    font-size:0.8em;
+}
+
+.menu_space
+{
+    clear:both;
+    padding-top:0.2em;
+    padding-bottom:0.2em;
+}

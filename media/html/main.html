@@ -1,0 +1,678 @@
+<!doctype html>
+<html>
+<head>
+    <title>radide</title>
+    <link rel="shortcut icon" href="/media/img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon"> 
+    <link rel="stylesheet" href="/media/css/style.css">
+    <link rel="stylesheet" href="/media/css/layout.css">
+    <link rel="stylesheet" href="/media/js/jquery-ui/themes/base/jquery.ui.base.css">
+    <link rel='stylesheet' href='/media/css/colorpicker.css' />
+    <script src='/media/js/jquery.js'></script>
+    <script src='/media/js/jquery-ui/ui/jquery-ui.js'></script>
+    <script src='/media/js/mousewheel.js'></script>
+    <script src='/media/js/colorpicker.js'></script>
+    <script src='/media/js/handlebars.js'></script>
+    <script src='/media/js/crap.js'></script>
+    <script src='/media/js/contextMenu.js'></script>
+    <script src='/media/js/iframetracker.js'></script>
+    <script src='/media/js/layout.js'></script>
+    <script src='/media/js/base.js'></script>
+    <script src='/media/ace/ace.js' type="text/javascript" charset="utf-8"></script>
+
+    <script>
+    $(function()
+    {
+        init(
+        {
+            csrf_token:"{{csrf_token}}",
+            username:"{{user.username}}"
+        });
+    })
+    </script>
+
+
+
+    {% verbatim %}
+
+
+    <script id="template_source_picker" type="text/x-handlebars-template">
+        <div>
+        <a href='#' onclick='show_main_menu();return false'>select a source</a>
+        <hr>
+        <div class='separator'></div>
+        <a class='item' href='#' onclick="show_explorer('');return false;">local drive</a>
+        {{#each servers}}
+            <a href='#' class='item' onclick="show_ftp_explorer('{{this.name}}');return false;">{{this.name}}</a>
+        {{/each}}
+        </div>
+        <a class='item'href='#' onclick='show_new_ftp_server();return false;'>connect to a new server</a>
+        <a class='item' href='#' onclick="show_open_url();return false;">open url</a>
+    </script>
+
+    <script id="template_open_url" type="text/x-handlebars-template">
+        <a href='#' onclick='show_source_picker();return false'>open url</a>
+        <hr>
+        <div class='separator'></div>
+        <div style="padding-right:4px;display:inline"><input style="width:60%" id="input_url"></div><input style="display:inline;" type="button" value="go" onclick="open_input_url();return false;">
+        <div class='v08'></div>
+        {{#each urls}}
+            <a href='#' onclick="open_url('{{this}}');return false;">{{this}}</a>
+            <div class='v08'></div>
+        {{/each}}
+    </script>
+
+
+    <script id="template_new_ftp" type="text/x-handlebars-template">
+        <a href='#' onclick="show_source_picker();return false;">connect to a new server</a>
+        <hr>
+        <div class='separator'></div>
+        <div id='new_ftp_server' class='table'>
+            <div class='row'>
+                <div class='cell'>host</div>
+                <div class='cell'><input id='ftp_host_input'></div>
+            </div>
+            <div class='row'>
+                <div class='cell'>user</div>
+                <div class='cell'><input id='ftp_user_input'></div>
+            </div>
+            <div class='row'>
+                <div class='cell'>password</div>
+                <div class='cell'><input type='password' id='ftp_password_input'></div>
+            </div>                
+            <div class='row'>
+                <input type='button' onclick='connect_new_server()' value='connect'>
+            </div>
+        </div> 
+    </script>
+
+    <script id="template_main_menu" type="text/x-handlebars-template">
+        <div class="control"><a href="#" onclick="new_file();return false;">new</a></div>
+        <div class="control"><a href="#" onclick="save_file('');return false;">save</a></div>
+        <div class="control"><a href="#" onclick="show_source_picker();return false;">explorer</a></div>
+        <div class="control"><a href="#" onclick="show_tools();return false;">tools</a></div>
+        <div class='control'><a href="#" onclick="show_settings();return false;">settings</a></div>
+        <div class='control'><a href="#" onclick="show_help();return false;">help</a></div>
+        <div class='menu_space'></div>
+        <hr style="clear:both">
+        <div class="separator"></div>
+        <div id='filelist'>
+        {{#each files}}
+            <a id='{{name}}' href='#'>{{{this.header}}}</a>
+            <div class='v08'></div>
+        {{/each}}
+        </div>
+    </script>
+
+
+    <script id="template_settings" type="text/x-handlebars-template">
+        <div>
+        <a href='#' onclick='show_main_menu();return false;'>settings</a><hr>
+        <div class='separator'></div>
+        <a class='item' href='#' onclick='show_header_settings();return false;'>header</a>
+        <a class='item' href='#' onclick='show_editor_settings();return false;'>editor</a>
+        <a class='item' href='#' onclick='show_behaviour_settings();return false;'>behaviour</a>
+        <a class='item' href='#' onclick='show_sessions();return false;'>sessions</a>
+        <a class='item' href='#' onclick='logout();return false;'>logout</a>
+        </div>
+    </script>
+
+
+    <script id="template_tools" type="text/x-handlebars-template">
+        <div>
+        <a href='#' onclick='show_main_menu();return false;'>tools</a><hr>
+        <div class='separator'></div>
+        <a class='item' href='#' onclick='show_ruler();return false;'>screen ruler</a>
+        <a class='item' href='#' onclick='show_color_picker();return false;'>color picker</a>
+        <a class='item' href='#' onclick='show_keycodes();return false;'>keyboard codes</a>
+        <a class='item' href='#' onclick='show_text_generator();return false;'>text generator</a>
+        <a class='item' href='#' onclick='show_char_counter();return false;'>char counter</a>
+        </div>
+    </script>
+
+
+    <script id="template_help" type="text/x-handlebars-template">
+        <div>
+        <a href='#' onclick='show_main_menu();return false;'>help</a><hr>
+        <div class='separator'></div>
+        do stuff and shit
+        </div>
+    </script>
+
+
+    <script id="template_header_settings" type="text/x-handlebars-template">
+        <div>
+        <a href='#' onclick='show_settings();return false;'>header</a><hr>
+        <div class='separator'></div>
+        <div class='table>'>
+        <div class='row'>
+            <div class='cell'>font size</div> <div class='cell'><input id="input_header_font_size" value="{{header_font_size}}"></div>
+
+            <div class='v15'></div>
+
+            <div class='cell'>font family</div> <div class='cell'><input id="input_header_font_family" value="{{header_font_family}}"></div>
+            
+            <div class='v15'></div>
+
+            <div class='cell'>font color</div><div class='cell'><input id="input_header_font_color" value="{{header_font_color}}"></div>
+            
+            <div class='v15'></div>
+
+            <div class='cell'>background color</div><div class='cell'><input id="input_header_background_color" value="{{header_background_color}}"></div>
+            
+            <div class='v15'></div>
+
+        </div>
+        </div>
+        <br>
+        <a href='#' onclick='save_header_settings();return false;'>save</a>
+        </div>
+    </script>
+
+    <script id="template_editor_settings" type="text/x-handlebars-template">
+        <div>
+        <a href='#' onclick='show_settings();return false;'>editor</a><hr>
+        <div class='separator'></div>
+        <div class='table>'>
+        <div class='row'>
+            <div class='cell'>theme</div> <div class='cell'><div style='cursor:pointer; padding-bottom:8px'onclick='show_theme_picker();return false'>{{theme}}</div></div>
+            
+            <div class='v15'></div>
+
+            <div class='cell'>font size</div> <div class='cell'><input id="input_editor_font_size" value="{{editor_font_size}}"></div>
+
+            <div class='v15'></div>
+
+            <div class='cell'>show gutter</div> <div class='cell'>
+                <select id="show_gutter">
+                    <option>yes</option>
+                    <option>no</option>
+                </select>
+            </div>
+
+            <div class='v15'></div>
+
+            <div class='cell'>keyboard mode</div> <div class='cell'>
+                <select id="keyboard_mode">
+                    <option>normal</option>
+                    <option>vim</option>
+                    <option>emacs</option>
+                </select>
+            </div>
+
+        </div>
+        </div>
+        <br>
+        <a href='#' onclick='save_editor_settings();return false;'>save</a>
+        </div>
+    </script>
+
+    <script id="template_behaviour_settings" type="text/x-handlebars-template">
+        <div>
+        <a href='#' onclick='show_settings();return false;'>behaviour</a><hr>
+        <div class='separator'></div>
+            <div style='float:left'>autosave</div>
+            <div style='float:left; padding-left:3em'>
+
+                  <select id='autosave'>
+                    <option>yes</option>
+                    <option>no</option>
+                </select>
+            </div>
+        <br>
+        <div class='v15'></div>
+        <a style='clear:both' href='#' onclick='save_behaviour_settings();return false;'>save</a>
+        </div>
+    </script>
+
+    <script id="template_sessions" type="text/x-handlebars-template">
+        <a href='#' onclick='show_settings();return false;'>sessions</a><hr>
+        <div class='separator'></div>
+        {{#each sessions}}
+            <a href='#' onclick="change_session('{{this}}');return false" class='session_item'> {{this}} </a>
+            <div class='v08'></div>
+        {{/each}}
+        <input type='button' onclick='new_session()' value='new session'>
+        <div class='v1'></div>
+    </script>
+
+    <script id="template_session_item_edit" type="text/x-handlebars-template">
+        <input class='session_item_edit' type='text'>
+    </script>
+
+    <script id="template_split" type="text/x-handlebars-template">
+        <div>
+        <a href='#' onclick='show_settings();return false;'>split</a><hr>
+        <div class='separator'></div>
+        <div>
+            vertical <input>
+        </div>
+            horizontal <input>
+        </div>
+        </div>
+    </script>
+
+
+    <script id="template_login" type="text/x-handlebars-template">
+        <div id='login_screen' class='table'>
+            <div class='row'>
+                <div class='cell'><div style='font-weight:bold;padding-bottom:16px'font-size:14px'>login</div></div>
+            </div>
+            <div class='row'>
+                <div class='cell'>username</div>
+                <div class='cell'><input style='padding-left:8px'id='login_username'></div>
+            </div>
+            <div class='row'>
+                <div class='cell'>password</div>
+                <div class='cell'><input type='password' style='padding-left:8px' id='login_password'></div>
+            </div>                
+            <div class='row'>
+                <div style='padding-top:18px' class='cell'><a href='#' onclick='login()'>login</a></div>
+            </div>
+        </div>
+        <br>            
+        <hr>
+        <br>            
+        <div style='padding-bottom:30px'id='login_screen' class='table'>
+            <div class='row'>
+                <div class='cell'><div style='font-weight:bold;padding-bottom:16px'font-size:14px'>register</div></div>
+            </div>
+            <div class='row'>
+                <div class='cell'>username</div>
+                <div class='cell'><input style='padding-left:8px'id='register_username'></div>
+            </div>
+            <div class='row'>
+                <div class='cell'>password</div>
+                <div class='cell'><input type='password' style='padding-left:8px' id='register_password'></div>
+            </div>                
+            <div class='row'>
+                <div class='cell'>mail</div>
+                <div class='cell'><input style='padding-left:8px' id='register_email'></div>
+            </div>
+            <div class='row'>
+                <div style='padding-top:18px' class='cell'><a href='#' onclick='register()'>register</a></div>
+            </div>
+        </div>
+    </script>
+
+
+    <script id="template_theme_picker" type="text/x-handlebars-template">
+        <a href='#' onclick='show_editor_settings();return false;'>theme</a><hr>
+        <div class='separator'></div>
+        {{#each themes}}
+            <a class='item' href='#' onclick="change_theme('{{this}}') ;return false;">{{this}}</a>
+        {{/each}}
+    </script>
+
+
+    <script id="template_new_file" type="text/x-handlebars-template">
+        <a href='#' onclick='show_main_menu();return false;'>new file</a><hr>
+        <div class='separator'></div>
+        <a href='#' class='item' onclick="show_new_local_file('','list');return false">local drive</a>
+        {{#each servers}}
+            <a href='#' class='item' onclick="new_ftp_file('{{this}}','');return false;">{{this}}</a>
+        {{/each}}
+    </script>
+
+
+    <script id="template_new_ftp_file" type="text/x-handlebars-template">
+        <a href='#' onclick='show_main_menu();return false;'>new file</a><hr>
+        <div class='separator'></div>
+        <a href='#' class='item' onclick="show_new_local_file('','');return false">local drive</a>
+        {{#each servers}}
+            <a href='#' class='item' onclick="new_ftp_file('{{path}}/{{this}}','');return false;">{{this}}</a>
+        {{/each}}
+    </script>
+
+
+    <script id="template_explorer" type="text/x-handlebars-template">
+        <input spellcheck="false" class="inputpath" id="inputpath" text value="{{path}}">
+        <hr>
+        <div class='separator'></div>
+        <div>
+        <div style='max-height:100%'>
+        {{# if close_on_back }}
+            <a href='#' class='item' onclick="show_main_menu();return false;">..</a>
+        {{ else }}
+            <a href='#' class='item' onclick="show_explorer('{{back}}');return false;">..</a>
+        {{/ if }}
+        {{#each files}}
+            <div>
+            <input class='nameholder' type='hidden' value='{{../path}}{{this}}'>
+            <a href='#' class='item file' onclick="show_explorer('{{../path}}{{this}}');return false;">{{this}}</a>
+            </div>
+        {{/each}}
+        </div>
+        </div>
+    </script>
+
+    <script id="template_save_as_picker" type="text/x-handlebars-template">
+        <a href='#' onclick='show_main_menu();return false;'>select a destination</a><hr>
+        <div class='separator'></div>
+        <a href='#' class='item' onclick="save_as_explorer('', 'explore')">local drive</a>
+        {{#each servers}}
+            <a href='#' class='item' onclick="save_as_ftp_explorer('{{this.name}}','explore');return false;">{{this.name}}</a>
+        {{/each}}
+    </script>
+
+    <script id="template_save_as_explorer" type="text/x-handlebars-template">
+        <input spellcheck="false" class="inputpath" id="inputpath_save_as" text value="{{path}}">
+        <hr>
+        <div class='separator'></div>
+        <div>
+        <div style='max-height:100%'>
+        {{# if close_on_back }}
+            <a href='#' class='item' onclick="save_as_picker();return false;">..</a>
+        {{ else }}
+            <a href='#' class='item' onclick="save_as_explorer('{{back}}', 'explore');return false;">..</a>
+        {{/ if }}
+        {{#each files}}
+            <div>
+            <input class='nameholder' type='hidden' value='{{../path}}{{this}}'>
+            <a href='#' class='item file' onclick="save_as_explorer('{{../path}}{{this}}', 'explore');return false;">{{this}}</a>
+            </div>
+        {{/each}}
+        </div>
+        </div>
+    </script>
+
+    <script id="template_save_as_ftp_explorer" type="text/x-handlebars-template">
+        <input spellcheck="false" class="inputpath" id="inputpath_save_as_ftp" text value="{{fake_path}}">
+        <hr>
+        <div class='separator'></div>
+        <div>
+        <div style='max-height:100%'>
+        {{# if close_on_back }}
+            <a href='#' class='item' onclick="save_as_picker();return false;">..</a>
+        {{ else }}
+            <a href='#' class='item' onclick="save_as_ftp_explorer('{{back}}', 'explore');return false;">..</a>
+        {{/ if }}
+        {{#each files}}
+            <div>
+            <input class='nameholder' type='hidden' value='{{../path}}{{this}}'>
+            <a href='#' class='item file' onclick="save_as_ftp_explorer('{{../path}}{{this}}', 'explore');return false;">{{this}}</a>
+            </div>
+        {{/each}}
+        </div>
+        </div>
+    </script>
+
+
+    <script id="template_ftp_explorer" type="text/x-handlebars-template">
+        <input spellcheck="false" class="inputpath" id="inputpath_ftp" text value="{{fake_path}}">
+        <hr>
+        <div class='separator'></div>
+        <div>
+        <div style='max-height:100%'>
+        {{# if close_on_back }}
+            <a href='#' class='item' onclick="show_main_menu();return false;">..</a>
+        {{ else }}
+            <a href='#' class='item' onclick="show_ftp_explorer('{{back}}');return false;">..</a>
+        {{/ if }}
+        {{#each files}}
+
+            <div>
+            <input class='nameholder' type='hidden' value='{{../path}}{{this}}'>
+            <a href='#' class='item ftp_file' onclick="show_ftp_explorer('{{../path}}{{this}}');return false;">{{this}}</a>
+            </div>
+        {{/each}}
+        </div>
+        </div>
+    </script>
+
+
+    <script id="template_container" type="text/x-handlebars-template">
+        <div id="container{{id}}" class="container" tabindex=1>
+            <div id="outer_header{{id}}" class="outer_header unselectable">
+                <div id="header{{id}}" class="header"></div>
+            </div>
+            <div class='editor' id='editor{{id}}'></div>
+            <input class="container_id" type='hidden' value={{id}}>
+        </div>
+    </script>
+
+
+    <script id="template_iframe" type="text/x-handlebars-template">
+        <iframe class='iframe' id="iframe{{id}}-{{url}}" src="{{url}}">
+    </script>
+
+
+    <script id="template_horizontal_pane" type="text/x-handlebars-template">
+        <div class="ui-layout-center" id="a{{id}}"></div>
+        <div class="ui-layout-east" id="b{{id}}"></div>
+    </script>
+
+
+    <script id="template_vertical_pane" type="text/x-handlebars-template">
+        <div class="ui-layout-center" id="a{{id}}"></div>
+        <div class="ui-layout-south" id="b{{id}}"></div>
+    </script>
+
+
+    <script id="template_single_pane" type="text/x-handlebars-template">
+        <div class="ui-layout-center" id="a{{id}}"></div>
+    </script>
+
+
+    <script id="template_ruler" type="text/x-handlebars-template">
+        <div class="ruler"><div class='ruler_info'></div></div>
+    </script>
+
+
+    <script id="template_suggestions" type="text/x-handlebars-template">
+        <div class='suggestions_holder'>
+            <div class='suggestions'>
+            </div>
+        </div>
+    </script>
+
+
+    <script id="template_suggestion_items" type="text/x-handlebars-template">
+        {{#each suggestions}}
+            <div class='suggestion_item{{#if @first}}_selected{{/if}}'>{{this}}</div>
+        {{/each}}
+    </script>
+
+
+    <script id="template_symbols" type="text/x-handlebars-template">
+        <div class='symbols_holder'>
+            <input class='symbols_input'>
+            <div class='symbols'>
+            </div>
+        </div>
+    </script>
+
+
+    <script id="template_symbol_items" type="text/x-handlebars-template">
+        {{#each symbols}}
+            <div id={{this.row}} class='symbol_item{{#if @first}}_selected{{/if}}'>{{this.value}}</div>
+        {{/each}}
+    </script>
+
+
+    <script id="template_keycodes" type="text/x-handlebars-template">
+        <a href='#' onclick='show_tools();return false'>keyboard codes</a>
+        <hr>
+        <div class='separator'></div>
+        <input onkeypress="javascript:return false;" id="txtChar" onkeydown="javascript:return displayKeyCode(event)" type="text" name="txtChar">
+        <span id="spnCode" name="spnCode"></span>
+    </script>
+
+
+    <script id="template_char_counter" type="text/x-handlebars-template">
+        <a href='#' onclick='show_tools();return false'>char counter</a>
+        <hr>
+        <div class='separator'></div>
+        <input type="radio" value="characters" name="g" checked="checked" id="radio_characters"> characters
+        <input type="radio" value="words" name="g" id="radio_words"> words
+        <div style='padding-top:5px'>
+            <input style="display:inline" onclick="count_chars();return false;" type="button" value="generate">
+            &nbsp;&nbsp;&nbsp;
+            <div style="display:inline" id="counter_result"></div>
+        </div>
+        </div>
+        <div style='padding-top:10px'>
+            <textarea class="result" rows="10" id="text_counter"></textarea>
+    </script>
+
+
+    <script id="template_keycodes" type="text/x-handlebars-template">
+        <a href='#' onclick='show_tools();return false'>keyboard codes</a>
+        <hr>
+        <div class='separator'></div>
+        <input onkeypress="javascript:return false;" id="txtChar" onkeydown="javascript:return displayKeyCode(event)" type="text" name="txtChar">
+        <span id="spnCode" name="spnCode"></span>
+    </script>
+
+
+    <script id="template_text_generator" type="text/x-handlebars-template">
+        <a href='#' onclick='show_tools();return false'>text generator</a>
+        <hr>
+        <div class='separator'></div>
+        <input type="radio" value="characters" name="g" checked="checked" id="radio_characters"> characters
+        <input type="radio" value="words" name="g" id="radio_words"> words
+        <div style='padding-top:5px'>
+            <input id="input_generator">&nbsp;&nbsp;<input onclick="generate_text();return false;" type="button" value="generate">
+        </div>
+        <div style='padding-top:10px'>
+            <textarea class="result" rows="10" id="text_generator_result"></textarea>
+        </div>
+    </script>
+
+
+    <script id="template_color_picker" type="text/x-handlebars-template">
+        <a href='#' onclick='show_tools();return false'>color picker</a>
+        <hr>
+        <div class='separator'></div>
+        <div id="color_picker"></div>
+        </div>
+    </script>
+
+    <script id="template_tabs" type="text/x-handlebars-template">
+        {{#each files}}
+            {{#equal this.name ../current}}
+                <div class='selected_tab tab' id='{{this.container.id}}^{{this.name}}' title='{{this.name}}'> {{this.head}} </div>
+            {{else}}
+                <div class='tab' id='{{this.container.id}}^{{this.name}}' title='{{this.name}}'> {{this.head}} </div>
+            {{/equal}}
+        {{/each}}
+    </script>
+
+    {% endverbatim %}
+
+</head>
+
+<body>
+    <div class='loading'> loading... </div>
+
+    <div class='unselectable' id="outer_menu">
+        <div id="menu"></div>
+    </div>
+
+    <div id='menu_overlay'></div>
+
+    <ul id="header_menu" class="contextMenu">
+        <li>
+            <a href="#split_horizontal">split right</a>
+        </li>
+        <li>
+            <a href="#split_vertical">split down</a>
+        </li>       
+    </ul>
+
+    <ul id="header_menu2" class="contextMenu">
+        <li>
+            <a href="#split_horizontal">split right</a>
+        </li>
+        <li>
+            <a href="#split_vertical">split down</a>
+        </li>   
+        <li>
+            <a href="#close">close</a>
+        </li>        
+    </ul>
+
+    <ul id="iframe_header_menu" class="contextMenu">
+        <li>
+            <a href="#reload">reload</a>
+        </li>
+        <li>
+            <a href="#split_horizontal">split right</a>
+        </li>
+        <li>
+            <a href="#split_vertical">split down</a>
+        </li>
+        <li>
+            <a href="#close">close</a>
+        </li>        
+    </ul>
+
+    <ul id="header_menu3" class="contextMenu">
+        <li>
+            <a href="#close">close</a>
+        </li>        
+    </ul>
+
+    <ul id="editor_menu" class="contextMenu">
+        <li>
+            <a href="#cut">cut</a>
+        </li>
+        <li>
+            <a href="#copy">copy</a>
+        </li>
+        <li>
+            <a href="#paste">paste</a>
+        </li>
+        <li>
+            <a href="#up">up</a>
+        </li>
+        <li>
+            <a href="#down">down</a>
+        </li>
+        <li>
+            <a href="#duplicate">duplicate</a>
+        </li>
+    </ul>
+
+    <ul id="file_menu" class="contextMenu">
+        <li>
+            <a href="#rename">rename</a>
+        </li>
+        <li>
+            <a href="#delete">delete</a>
+        </li>
+    </ul>
+
+    <ul id="file_ftp_menu" class="contextMenu">
+        <li>
+            <a href="#rename">rename</a>
+        </li>
+        <li>
+            <a href="#delete">delete</a>
+        </li>
+    </ul>
+
+    <ul id="file_list_menu" class="contextMenu">
+        <li>
+            <a href="#remove">remove</a>
+        </li>
+    </ul>
+
+    <ul id="sessions_menu" class="contextMenu">
+        <li>
+            <a href="#rename">rename</a>
+        </li>
+        <li>
+            <a href="#remove">remove</a>
+        </li>
+    </ul>
+
+    <ul id="sessions_menu_single" class="contextMenu">
+        <li>
+            <a href="#rename">rename</a>
+        </li>
+    </ul>
+
+</body>
+
+</html>
