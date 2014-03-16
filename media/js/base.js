@@ -1531,7 +1531,38 @@ function show_tools()
 }
 function show_help()
 {
-    s = template_help();
+    s = "";
+    s += "<div class='help_item'>click on the selected tab to open the menu</div>";
+    s += "<div class='help_item'>right click the header to split the pane in two</div>";
+    s += "<div class='help_item'>click a file on the menu to open it in the current pane</div>";
+    s += "<div class='help_item'>middle click a tab to close it</div>";
+    s += "<br>"
+    s += "<div class='help_item'>--- general commands ---</div>";
+    s += "<div class='help_item'>open menu : ctrl + space</div>";
+    s += "<div class='help_item'>save file : ctrl + s</div>";
+    s += "<div class='help_item'>save all : ctrl + shift + s</div>";
+    s += "<div class='help_item'>new file : alt + n</div>";
+    s += "<div class='help_item'>reload : ctrl + r</div>";
+    s += "<div class='help_item'>close file : ctrl + x</div>";
+    s += "<div class='help_item'>go to : ctrl + g</div>";
+    s += "<div class='help_item'>go to previous file : alt + ,</div>";
+    s += "<div class='help_item'>go to next file : alt + .</div>";
+    s += "<div class='help_item'>move file to the left : alt + shift + ,</div>";
+    s += "<div class='help_item'>move file to the right : alt + shift + .</div>";
+    s += "<div class='help_item'>split horizontally : alt + h</div>";
+    s += "<div class='help_item'>split vertically : alt + v</div>";
+    s += "<br>";
+    s += "<div class='help_item'>--- explorer commands ---</div>";
+    s += "<div class='help_item'>make a file: mkfile [name]</div>";
+    s += "<div class='help_item'>remove file: rmfile [name]</div>";
+    s += "<div class='help_item'>make a directory: mkdir [name]</div>";
+    s += "<div class='help_item'>remove directory: rmdir [name]</div>";
+    s += "<div class='help_item'>rename file: renfile [file][new_name]</div>";
+    s += "<div class='help_item'>rename directory: rendir [dir][new_name]</div>";
+    s += "<br>";
+    s += "<div class='help_item'>------</div>";
+    s += "<div class='help_item'><a target='_blank' href='https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts'>click here for editor shortcuts</a></div>";
+    s = template_help({s:s});
     set_menu(s);
 }
 function show_keycodes()
@@ -1858,24 +1889,6 @@ function activate_key_detection()
         {
             if(e.shiftKey)
             {
-                // u - open url
-                if(code == 79)
-                {
-                    show_open_url();
-                    e.preventDefault();
-                } 
-                // h - toggle header
-                if(code == 72)
-                {
-                    toggle_header();
-                    e.preventDefault();
-                } 
-                // r - ruler
-                if(code == 82)
-                {
-                    toggle_ruler();
-                    e.preventDefault();
-                } 
                 // s - save all
                 if(code == 83)
                 {
@@ -1896,29 +1909,18 @@ function activate_key_detection()
                 save_file(current_container.file);
                 e.preventDefault();
             }
-            // o - open
-            if(code == 79)
-            {
-                show_server_picker();
-                e.preventDefault();
-            } 
             // space - menu
             if(code == 32)
             {
                 open_menu();
                 e.preventDefault();
             } 
+            // r - reload
             if(code == 82)
             {
                 reload();
                 e.preventDefault();
-            } 
-            // e - explorer
-            if(code == 69)
-            {
-                show_explorer('');
-                e.preventDefault();
-            } 
+            }  
 
         }
         if(e.altKey)
@@ -1937,46 +1939,50 @@ function activate_key_detection()
                     move_file_right();
                     e.preventDefault();
                 } 
-            }
-            else
-            {
-                // n - new file
-                if(code == 78)
-                {
-                    new_file(current_container);
-                    e.preventDefault();
-                } 
-                // h - split horizontal
-                if(code == 72)
-                {
-                    split_horizontal($('#container' + current_container.id));
-                    e.preventDefault();
-                } 
-                // v - split vertical
-                if(code == 86)
-                {
-                    split_vertical($('#container' + current_container.id));
-                  
-                }
                 // x - close container
                 if(code == 88)
                 {
                     close_container($('#container' + current_container.id));
                     e.preventDefault();
-                }            
-                // , - next file
-                if(code == 188)
-                {
-                    next();
-                    e.preventDefault();
-                }             
-                // . - prev file
-                if(code == 190)
-                {
-                    prev();
-                    e.preventDefault();
-                }              
+                } 
+                return false;
             }
+            // n - new file
+            if(code == 78)
+            {
+                new_file(current_container);
+                e.preventDefault();
+            } 
+            // h - split horizontal
+            if(code == 72)
+            {
+                split_horizontal($('#container' + current_container.id));
+                e.preventDefault();
+            } 
+            // v - split vertical
+            if(code == 86)
+            {
+                split_vertical($('#container' + current_container.id));
+              
+            }
+            // x - close file
+            if(code == 88)
+            {
+                close_file(current_container.file);
+                e.preventDefault();
+            }            
+            // , - next file
+            if(code == 188)
+            {
+                next();
+                e.preventDefault();
+            }             
+            // . - prev file
+            if(code == 190)
+            {
+                prev();
+                e.preventDefault();
+            }              
         }
         if(code==13)
         {
@@ -2031,6 +2037,7 @@ function progress(s, c)
 }
 function save_all()
 {
+    var files = get_text_files();
     for(var i=0;i<files.length;i++)
     {
         save_file(files[i]);
@@ -2553,6 +2560,35 @@ function get_files()
         for(var j=0; j<containers[i].files.length; j++)
         {
             var file = containers[i].files[j]
+            var store = true;
+            for(var k=0; k<files.length; k++)
+            {
+                if(files[k].name === file.name)
+                {
+                    store = false;
+                    break;
+                }
+            }
+            if(store)
+            {
+                files.push(file);
+            }
+        }
+    }
+    return files;
+}
+function get_text_files()
+{
+    var files = [];
+    for(var i=0; i<containers.length;i++)
+    {
+        for(var j=0; j<containers[i].files.length; j++)
+        {
+            var file = containers[i].files[j]
+            if(file.name.indexOf('http://') !== -1)
+            {
+                continue;
+            }
             var store = true;
             for(var k=0; k<files.length; k++)
             {
