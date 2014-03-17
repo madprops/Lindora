@@ -93,19 +93,21 @@ def save_file(request):
 	return HttpResponse(json.dumps(data), mimetype="application/json")
 
 def login(request):
+	c = {}
+	c.update(csrf(request))
 	if request.method == 'POST':
 		if 'btnlogin' in request.POST:
-			username = clean_string(request.POST['login_username']).lower()
+			username = wash_string(request.POST['login_username'].lower().strip())
 			password = request.POST['login_password']
 			user = authenticate(username=username, password=password)
 			if user is not None:
 				if user.is_active:
 					auth_login(request, user)
 					return HttpResponseRedirect('/')
+			else:
+				c['msg1'] = 'wrong username or password'
 		else:
 			return register(request)
-	c = {}
-	c.update(csrf(request))
 	return render_to_response('login.html', c)
 
 def register(request):
@@ -115,17 +117,17 @@ def register(request):
 	password = request.POST['register_password'].strip()
 	email = request.POST['register_email'].strip()
 	if username == '' or password == '' or email == '':
-		c['msg'] = 'you must fill all the fields'
+		c['msg2'] = 'you must fill all the fields'
 		return render_to_response('login.html', c)
 	if not username:
-		c['msg'] = 'you must enter a valid username (no special characters or empty spaces)'
+		c['msg2'] = 'you must enter a valid username (no special characters or empty spaces)'
 		return render_to_response('login.html', c)
 	if not '@' in email:
-		c['msg'] = 'you must provide a valid email address'
+		c['msg2'] = 'you must provide a valid email address'
 		return render_to_response('login.html', c)
 	try: 
 		User.objects.get(username=username)
-		c['msg'] = 'this username already exists'
+		c['msg2'] = 'this username already exists'
 		return render_to_response('login.html', c)
 	except:
 		pass
