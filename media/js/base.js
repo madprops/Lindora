@@ -1209,7 +1209,9 @@ function show_main_menu()
 {
     current_container.editor.blur();
     show_menu();
-    data = {loggedin:loggedin, files: get_files()};
+    var files = get_files();
+    console.log(files.length);
+    data = {files:files};
     s = template_main_menu(data);
     set_menu(s);
     bind_file_list_menu();
@@ -2745,8 +2747,9 @@ function clone_file(file, container)
     }
     nf = new File();
     nf.name = file.name;
-    nf.head = get_head(file.name);
-    nf.tail = get_tail(file.name);
+    nf.head = file.head
+    nf.header = file.header;
+    nf.tail = file.tail;
     nf.container = container;
     var session = new EditSession(file.session.getDocument(), get_mode(file.name));
     var undoManager = file.session.getUndoManager();
