@@ -1,0 +1,56 @@
+
+
+<html>
+	<head>
+		<link rel="shortcut icon" href="/media/img/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="favicon.ico" type="image/x-icon"> 
+		<meta name="description" content="Lindora online code editor">
+		<meta name="keywords" content="editor, web, ide, programming, code">
+		<title> login </title>
+		<link rel='stylesheet' href='/media/css/style.css'>
+	</head>
+	<body>
+		<div style='margin:1em'>
+
+		<div class='login_title'> Lindora </div>
+		<div class='clear v1'>
+
+		<form name='form' method='post' action='.'> {% csrf_token %}
+			<div class='small'> username </div>
+			<div class='v03'>
+			<input class='cozy' type='text' name='login_username'>
+			<div class='v08'>
+			<div class='small'> password </div>
+			<div class='v03'>
+			<input class='cozy' type='password' name='login_password'>
+			<div class='v08'>
+			<input class='cozy' type='submit' value='login' name='btnlogin'>
+
+		<div class='msg'>{{msg1}}</div>
+
+		<div class='v1'></div>
+		if you don't have an account already
+		<br>
+		you can register below
+		<div class='v1'></div>
+
+			<div class='small'> username</div>
+			<div class='v03'>
+			<input class='cozy' type='text' name='register_username'>
+			<div class='v08'>
+			<div class='small'> password </div>
+			<div class='v03'>
+			<input class='cozy' type='password' name='register_password'>
+			<div class='v08'>
+			<div class='small'> mail </div>
+			<div class='v03'>
+			<input class='cozy' type='text' name='register_email'>
+			<div class='v08'>
+			<input class='cozy' type='submit' value='register' name='btnregister'>
+		</form>
+
+		<div class='msg'>{{msg2}}</div>
+
+		</div>
+	</body>
+</html>
