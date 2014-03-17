@@ -716,6 +716,7 @@ function close_file(file)
     {
         if(files[i] === file)
         {
+            var file = files[i];
             if(files.length === 1)
             {
                 if(container.id !== 0)
@@ -724,6 +725,7 @@ function close_file(file)
                 }
                 else
                 {
+                    console.log('s1');
                     container.file = new_file(container)
                 }
             }
@@ -738,7 +740,13 @@ function close_file(file)
                     container.file = files[i - 1]
                 }
             }
-            files.splice(i, 1);
+            for(var i=0; i<files.length; i++)
+            {
+                if(files[i] === file)
+                {
+                    files.splice(i, 1);
+                }
+            }
         }
     }
     show_file(container.file);

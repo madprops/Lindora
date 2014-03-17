@@ -535,3 +535,11 @@ input[type='button']
 {
     padding-bottom: 1em;
 }
+
+.msg
+{
+    padding-top:1em;
+    color: #C40000;
+    font-size: 1.4em;
+    letter-spacing: 0.14em
+}

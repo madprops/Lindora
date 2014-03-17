@@ -19,6 +19,9 @@ from server.models import *
 root = "/home/yo/radide/"
 home = "/home/yo/radide/home"
 
+#root = "/home/localghost/webapps/lindora/radide"
+#home = "/home/localghost/webapps/lindora/radide/home"
+
 def log(s):
 	with open(root + 'log', 'a') as log:
 		log.write(str(s) + '\n\n');
@@ -106,23 +109,30 @@ def login(request):
 	return render_to_response('login.html', c)
 
 def register(request):
-	username = clean_string(request.POST['register_username']).lower().strip()
+	c = {}
+	c.update(csrf(request))
+	username = wash_string(request.POST['register_username'].lower().strip())
 	password = request.POST['register_password'].strip()
 	email = request.POST['register_email'].strip()
 	if username == '' or password == '' or email == '':
-		data = {'status':'empty'}
-		return HttpResponse('/login')
+		c['msg'] = 'you must fill all the fields'
+		return render_to_response('login.html', c)
+	if not username:
+		c['msg'] = 'you must enter a valid username (no special characters or empty spaces)'
+		return render_to_response('login.html', c)
 	if not '@' in email:
-		return HttpResponse('/login')
+		c['msg'] = 'you must provide a valid email address'
+		return render_to_response('login.html', c)
 	try: 
 		User.objects.get(username=username)
-		return HttpResponseRedirect('/login')
+		c['msg'] = 'this username already exists'
+		return render_to_response('login.html', c)
 	except:
 		pass
 	user = User.objects.create_user(username, 'no@email.com', password)
 	p = Profile(user=user)
 	p.theme = "tomorrow_night_eighties"
-	session = Session(user=user, name='default', content=demo_session())
+	session = Session(user=user, name='default', content=demo_session(user.username))
 	session.save()
 	p.current_session = session
 	p.save()
@@ -146,7 +156,7 @@ def default_session():
 		"""
 	return s
 
-def demo_session():
+def demo_session(username):
 	s = """
 	<div id="container0" class="container" tabindex="1">
 	            <div id="outer_header0" class="outer_header unselectable" style="background-color: rgb(45, 45, 45); display: block;">
@@ -183,6 +193,20 @@ def clean_string(s):
 		if strlist:
 			s = ''.join(strlist)
 			if s == s:
+				return s
+			else:
+				return False
+		return False
+	except:
+		return False
+
+def wash_string(s):
+	try:
+		p = re.compile(r"[a-zA-Z0-9]+")
+		strlist = p.findall(s)
+		if strlist:
+			s2 = ''.join(strlist)
+			if s == s2:
 				return s
 			else:
 				return False
