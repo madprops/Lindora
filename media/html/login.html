@@ -10,20 +10,29 @@
 		<link rel='stylesheet' href='/media/css/style.css'>
 	</head>
 	<body>
+		<style>
+			body,html
+			{
+			    overflow-x: hidden !important;
+			    overflow-y:auto !important;
+			}
+		</style>
 		<div style='margin:1em'>
 
-		<div class='login_title'> Lindora </div>
-		<div class='clear v1'>
+		<div class='login_title'> Lindora - an online code editor</div>
+		<div class='clear v1'></div>
+
+		<div class='leftcol'>
 
 		<form name='form' method='post' action='.'> {% csrf_token %}
 			<div class='small'> username </div>
-			<div class='v03'>
+			<div class='v03'></div>
 			<input class='cozy' type='text' name='login_username'>
-			<div class='v08'>
+			<div class='v08'></div>
 			<div class='small'> password </div>
-			<div class='v03'>
+			<div class='v03'></div>
 			<input class='cozy' type='password' name='login_password'>
-			<div class='v08'>
+			<div class='v08'></div>
 			<input class='cozy' type='submit' value='login' name='btnlogin'>
 
 		<div class='msg'>{{msg1}}</div>
@@ -35,22 +44,26 @@
 		<div class='v1'></div>
 
 			<div class='small'> username</div>
-			<div class='v03'>
+			<div class='v03'></div>
 			<input class='cozy' type='text' name='register_username'>
-			<div class='v08'>
+			<div class='v08'></div>
 			<div class='small'> password </div>
-			<div class='v03'>
+			<div class='v03'></div>
 			<input class='cozy' type='password' name='register_password'>
-			<div class='v08'>
+			<div class='v08'></div>
 			<div class='small'> mail </div>
-			<div class='v03'>
+			<div class='v03'></div>
 			<input class='cozy' type='text' name='register_email'>
-			<div class='v08'>
+			<div class='v08'></div>
 			<input class='cozy' type='submit' value='register' name='btnregister'>
 		</form>
 
 		<div class='msg'>{{msg2}}</div>
 
+		</div>
+
+		<div class='rightcol'>
+			<img style='max-width:100%' src='/media/img/scrot1'>
 		</div>
 	</body>
 </html>

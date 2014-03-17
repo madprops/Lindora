@@ -543,3 +543,15 @@ input[type='button']
     font-size: 1.4em;
     letter-spacing: 0.14em
 }
+
+.leftcol
+{
+    width: 20%;
+    float:left;
+}
+
+.rightcol
+{
+    max-width: 80%;
+    float:left;
+}
