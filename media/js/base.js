@@ -897,6 +897,7 @@ function show_explorer(path)
     {
         path = last_working_path;
     }
+    show_overlay();
     $.get('/explorer/',
         {
             path:path,
@@ -905,6 +906,7 @@ function show_explorer(path)
         },
     function(data) 
     {
+        hide_overlay();
         if(data['status'] == 'list')
         {
             last_working_path = data['path'];
@@ -957,6 +959,7 @@ function save_as_picker()
 }
 function save_as_explorer(path, action)
 {
+    show_overlay();
     $.get('/explorer/',
         {
             path: path,
@@ -965,6 +968,7 @@ function save_as_explorer(path, action)
         },
     function(data) 
     {
+        hide_overlay();
         if(data['status'] == 'list')
         {
             last_working_path = data['path'];
