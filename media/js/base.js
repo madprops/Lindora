@@ -1179,6 +1179,7 @@ function connect_new_server()
     host = $('#ftp_host_input').val();
     user = $('#ftp_user_input').val();
     password = $('#ftp_password_input').val();
+    show_overlay();
     $.get('/connect_new_server/',
         {
             host: host,
@@ -1187,6 +1188,7 @@ function connect_new_server()
         },
     function(data) 
     {
+        hide_overlay();
         if(data['status'] == 'ok')
         {
             show_ftp_explorer(data['name']);
