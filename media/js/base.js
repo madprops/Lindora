@@ -725,7 +725,6 @@ function close_file(file)
                 }
                 else
                 {
-                    console.log('s1');
                     container.file = new_file(container)
                 }
             }
@@ -1216,7 +1215,6 @@ function show_main_menu()
     current_container.editor.blur();
     show_menu();
     var files = get_files();
-    console.log(files.length);
     data = {files:files};
     s = template_main_menu(data);
     set_menu(s);
@@ -2079,6 +2077,7 @@ function save_file(file)
     {
         progress('saving...', fc);
     }*/
+    notify('saving file...')
     $.post('/save_file/',
         {
             name: file.name,
@@ -2087,6 +2086,7 @@ function save_file(file)
         },
     function(data) 
     {
+        make_tabs(get_container(0));
         if(data['status'] == 'ok')
         {
             return false;
@@ -3134,7 +3134,7 @@ function load_suggestions_handler()
 function suggestion_selected_up()
 {
     sel = $('.suggestion_item_selected')
-    prev = sel.prev('.suggestion_item')
+    var prev = sel.prev('.suggestion_item')
     if(prev.length > 0)
     {
         prev.attr('class', 'suggestion_item_selected');
@@ -3454,7 +3454,7 @@ function update_symbols()
 function symbol_selected_up()
 {
     sel = $('.symbol_item_selected')
-    prev = sel.prev('.symbol_item')
+    var prev = sel.prev('.symbol_item')
     if(prev.length > 0)
     {
         prev.attr('class', 'symbol_item_selected');
