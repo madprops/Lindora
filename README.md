@@ -6,7 +6,7 @@ online code editor
 
 ![](http://i.imgur.com/4NyG3qs.png)
 
-feautures:
+features:
 - work directly from your server through FTP
 - code autocompletion
 - split windows infinitely
