@@ -11,7 +11,8 @@ features:
 - code autocompletion
 - split windows infinitely
 - save sessions that remember your files and layout
-- built in file explorer with Unix-y commands
+- built-in file explorer
+- website preview
 - tools to aid on web development
-- vim and emacs keyboard mode
 - very customizable appearance
+- vim and emacs keyboard mode
