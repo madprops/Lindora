@@ -2077,7 +2077,6 @@ function save_file(file)
     {
         progress('saving...', fc);
     }*/
-    notify('saving file...')
     $.post('/save_file/',
         {
             name: file.name,
@@ -2086,7 +2085,6 @@ function save_file(file)
         },
     function(data) 
     {
-        make_tabs(get_container(0));
         if(data['status'] == 'ok')
         {
             return false;
@@ -2411,6 +2409,11 @@ function logout()
 }        
 function open_file(name, container)
 {
+    if(name.substring(0,3) === 'new')
+    {
+        new_file(container);
+        return false;
+    }
     if(name=='')
     {
         return false;
