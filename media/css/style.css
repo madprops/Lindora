@@ -366,12 +366,22 @@ iframe
     padding-right:1.7em;
     cursor:pointer;
 }
+
 .selected_tab
 {
     float: left;
     padding-right:1.7em;
-    cursor:pointer;  
-    font-weight: bold;  
+    cursor:pointer;    
+}
+
+.bold
+{
+    font-weight: bold;
+}
+
+.underlined
+{
+    font-weight: underline;
 }
 
 .v1

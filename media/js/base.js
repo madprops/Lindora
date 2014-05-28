@@ -61,7 +61,17 @@ function init(args)
     start_ruler();
     start_suggestions();
     start_symbols();
+    //reload_iframe_url();
 }
+
+function reload_iframe_url()
+{
+    if(current_container.file.name.indexOf('http://') !== -1)
+    {
+        //.contentWindow.location.href
+    }
+}
+
 function start_ruler()
 {
     t = template_ruler();
@@ -508,16 +518,16 @@ function open_url(url, container)
     {
         url = "http://" + url;
     }
-    load_url_file(url, container)
-    template = template_iframe({id:container.id,url:url});
+    var file = load_url_file(url, container)
+    template = template_iframe({id:file.id,url:url});
     $("#outer_header" + container.id).after(template)
     $('#editor' + container.id).css('display','none');
     fix_height();
-    $("[id='iframe" + container.id + '-' + url + "']").iframeTracker(
+    $("[id='iframe" + file.id + "']").iframeTracker(
     {
         blurCallback: function()
         {
-            var cid = $("[id='iframe" + container.id + '-' + url + "']").parent().find('.container_id').val()
+            var cid = $("[id='iframe" + file.id + "']").parent().find('.container_id').val()
             current_container = get_container(cid);
             hide_ruler();
             hide_menu();
@@ -1440,7 +1450,7 @@ function set_header_menu()
     bind_header_menu(0);
     for(var i=1;i<containers.length;i++)
     {
-        if($('#iframe' + containers[i].id).is(':visible'))
+        if(containers[i].id === 0)
         {
             bind_iframe_header_menu(containers[i].id);
         }
@@ -1545,38 +1555,7 @@ function show_tools()
 }
 function show_help()
 {
-    s = "";
-    s += "<div class='help_item'>click on the selected tab to open the menu</div>";
-    s += "<div class='help_item'>right click the header to split the pane in two</div>";
-    s += "<div class='help_item'>click a file on the menu to open it in the current pane</div>";
-    s += "<div class='help_item'>middle click a tab to close it</div>";
-    s += "<br>"
-    s += "<div class='help_item'>--- general commands ---</div>";
-    s += "<div class='help_item'>open menu : ctrl + space</div>";
-    s += "<div class='help_item'>save file : ctrl + s</div>";
-    s += "<div class='help_item'>save all : ctrl + shift + s</div>";
-    s += "<div class='help_item'>new file : alt + n</div>";
-    s += "<div class='help_item'>reload : ctrl + r</div>";
-    s += "<div class='help_item'>close file : ctrl + x</div>";
-    s += "<div class='help_item'>go to : ctrl + g</div>";
-    s += "<div class='help_item'>go to previous file : alt + ,</div>";
-    s += "<div class='help_item'>go to next file : alt + .</div>";
-    s += "<div class='help_item'>move file to the left : alt + shift + ,</div>";
-    s += "<div class='help_item'>move file to the right : alt + shift + .</div>";
-    s += "<div class='help_item'>split horizontally : alt + h</div>";
-    s += "<div class='help_item'>split vertically : alt + v</div>";
-    s += "<br>";
-    s += "<div class='help_item'>--- explorer commands ---</div>";
-    s += "<div class='help_item'>make a file: mkfile [name]</div>";
-    s += "<div class='help_item'>remove file: rmfile [name]</div>";
-    s += "<div class='help_item'>make a directory: mkdir [name]</div>";
-    s += "<div class='help_item'>remove directory: rmdir [name]</div>";
-    s += "<div class='help_item'>rename file: renfile [file][new_name]</div>";
-    s += "<div class='help_item'>rename directory: rendir [dir][new_name]</div>";
-    s += "<br>";
-    s += "<div class='help_item'>------</div>";
-    s += "<div class='help_item'><a target='_blank' href='https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts'>click here for editor shortcuts</a></div>";
-    s = template_help({s:s});
+    s = template_help();
     set_menu(s);
 }
 function show_keycodes()
@@ -1692,6 +1671,7 @@ function show_header_settings()
         header_background_color:header_background_color,
     });
     set_menu(s);
+    $("#selected_tab option:contains('" + header_selected_tab + "')").prop('selected',true);
 }
 function save_header_settings()
 {
@@ -1702,6 +1682,7 @@ function save_header_settings()
             header_font_color: $('#input_header_font_color').val(),
             header_font_family: $('#input_header_font_family').val(),
             header_background_color: $('#input_header_background_color').val(),
+            header_selected_tab: $('#selected_tab option:selected').text(),
         },
     function(data) 
     {
@@ -2300,6 +2281,14 @@ function get_settings()
             {
                 header_visible = 'yes'; 
             }
+            if(data['header_selected_tab'])
+            {
+                header_selected_tab = data['header_selected_tab'];     
+            }
+            else
+            {
+                header_selected_tab = 'underline'; 
+            }
             if(data['autosave'])
             {
                 autosave = data['autosave']
@@ -2394,18 +2383,7 @@ function change_theme(name)
 }
 function logout()
 {
-    $.get('/logout/',
-        {
-        },
-    function(data) 
-    {
-        if(data['status'] == 'ok')
-        {
-            window.location.reload();
-        }
-        return false;
-    });
-    return false;    
+    window.location = '/login/';   
 }        
 function open_file(name, container)
 {
@@ -2643,7 +2621,7 @@ function show_file(file)
     })
     if(file.name.indexOf('http://') !== -1)
     {
-        $el = $("[id='iframe" + current_container.id + '-' + file.name + "']").css('display','block');
+        $el = $("[id='iframe" + file.id + "']").css('display','block');
         $('#editor' + current_container.id).css('display','none');
         fix_height();
     }
@@ -2707,7 +2685,7 @@ function load_url_file(url, container)
     container.file = file;
     container.files.unshift(file)
     make_tabs(file.container)
-    return
+    return file
 }
 function UndoManagerProxy(undoManager, session) 
 {
@@ -2984,6 +2962,14 @@ function make_tabs(container)
 {
     t = template_tabs({files:container.files, current:container.file.name})
     $('#header' + container.file.container.id).html(t);
+    if(header_selected_tab === 'bold')
+    {
+        $('.selected_tab').css('font-weight', 'bold')
+    }
+    else if(header_selected_tab == 'underline')
+    {
+        $('.selected_tab').css('text-decoration', 'underline')
+    }
     $('.tab').each(function()
     {
         $(this).click(function(e)
@@ -3035,6 +3021,7 @@ function get_container_files(container)
 }
 function new_file(container)
 {
+    console.log(container);
     file = load_file('new', '', container);
     make_tabs(container)
     return file;

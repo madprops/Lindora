@@ -46,17 +46,23 @@ def create_c(request):
 
 def main(request):
 	if not request.user.is_authenticated():
-		return HttpResponseRedirect('/login/')
+		start_demo_session(request	)
 	c = create_c(request)
 	return render_to_response('main.html', c)
 
-def about(request):
-	c = create_c(request)
-	return render_to_response('about.html', c)
-
-def test(request):
-	c = create_c(request)
-	return render_to_response('test.html', c)
+def start_demo_session(request):
+	username = 'user' + str(User.objects.count())
+	user = User.objects.create_user(username, 'no@email.com', 'tehpasswd')
+	p = Profile(user=user)
+	p.theme = "tomorrow_night_eighties"
+	session = Session(user=user, name='default', content=demo_session(user.username))
+	session.save()
+	p.current_session = session
+	p.save()
+	os.mkdir(home + '/' + user.username)
+	os.system('cp -a ' + home + '/demo/. ' + home + '/' + user.username)
+	user.backend='django.contrib.auth.backends.ModelBackend'
+	auth_login(request, user)
 	
 def save_file(request):
 	if not request.user.is_authenticated():
@@ -95,6 +101,7 @@ def save_file(request):
 def login(request):
 	c = {}
 	c.update(csrf(request))
+	auth_logout(request)
 	if request.method == 'POST':
 		if 'btnlogin' in request.POST:
 			username = wash_string(request.POST['login_username'].lower().strip())
@@ -131,10 +138,10 @@ def register(request):
 		return render_to_response('login.html', c)
 	except:
 		pass
-	user = User.objects.create_user(username, 'no@email.com', password)
+	user = User.objects.create_user(username, email, password)
 	p = Profile(user=user)
 	p.theme = "tomorrow_night_eighties"
-	session = Session(user=user, name='default', content=demo_session(user.username))
+	session = Session(user=user, name='default', content=default_session())
 	session.save()
 	p.current_session = session
 	p.save()
@@ -163,23 +170,12 @@ def demo_session(username):
 	<div id="container0" class="container" tabindex="1">
 	            <div id="outer_header0" class="outer_header unselectable" style="background-color: rgb(45, 45, 45); display: block;">
 	                <div id="header0" class="header" style="font-size: 18px; color: rgb(230, 230, 230); font-family: sans-serif;">
-	        
-	            
+	        	            
 	                <div class="tab" id="0^/""" + username + """/views.py" title="/""" + username + """/views.py"> views.py </div>
-	            
-	        
-	            
-	                <div class="tab" id="0^/""" + username + """/main.html" title="/""" + username + """/main.html"> main.html </div>
-	            
-	        
-	            
+	     			<div class="tab" id="0^/""" + username + """/main.html" title="/""" + username + """/main.html"> main.html </div>
 	                <div class="tab" id="0^/""" + username + """/base.js" title="/""" + username + """/base.js"> base.js </div>
-	            
-	        
-	            
-	                <div class="selected_tab tab" id="0^/""" + username + """/style.css" title="/""" + username + """/style.css"> style.css </div>
-	            
-	        
+	         		<div class="tab" id="0^/""" + username + """/style.css" title="/""" + username + """/style.css"> style.css </div>    
+	         		<div class="tab" id="0^/""" + username + """/help" title="/""" + username + """/help"> help </div>    
 	    </div>
 	            </div>
 	            <div class="editor ace_editor ace-tomorrow-night-eighties ace_nobold ace_dark" id="editor0" style="height: 355px; font-size: 18px; display: block;"></div>
@@ -279,7 +275,7 @@ def change_theme(request):
 
 def logout(request):
 	auth_logout(request)
-	data = {'status':'ok'	}
+	data = {'status':'ok'}
 	return HttpResponse(json.dumps(data), mimetype="application/json")
 
 def open_file(request):
@@ -704,6 +700,7 @@ def get_settings(request):
 		'header_font_family':profile.header_font_family,
 		'header_background_color':profile.header_background_color,
 		'header_visible':profile.header_visible,
+		'header_selected_tab':profile.header_selected_tab,
 		'autosave':profile.autosave,
 		'show_gutter':profile.show_gutter,
 		'show_line_numbers':profile.show_line_numbers,
@@ -717,6 +714,7 @@ def save_header_settings(request):
 	p.header_font_color = request.GET['header_font_color']
 	p.header_font_family = request.GET['header_font_family']
 	p.header_background_color = request.GET['header_background_color']
+	p.header_selected_tab = request.GET['header_selected_tab']
 	p.save()
 	data = {'status':'ok'}
 	return HttpResponse(json.dumps(data), mimetype="application/json")

@@ -34,6 +34,7 @@ class Profile(models.Model):
 	header_font_family = models.CharField(max_length=50, null=True)
 	header_background_color = models.CharField(max_length=50, null=True)
 	header_visible = models.CharField(max_length=50, null=True)
+	header_selected_tab = models.CharField(max_length=50, null=True)
 	autosave = models.CharField(max_length=50, null=True)
 	keyboard_mode = models.CharField(max_length=50, null=True)
 	show_gutter = models.CharField(max_length=50, null=True)

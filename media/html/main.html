@@ -87,7 +87,7 @@
     </script>
 
     <script id="template_main_menu" type="text/x-handlebars-template">
-        <div class="control"><a href="#" onclick="new_file();return false;">new</a></div>
+        <div class="control"><a href="#" onclick="new_file(container);return false;">new</a></div>
         <div class="control"><a href="#" onclick="save_file('');return false;">save</a></div>
         <div class="control"><a href="#" onclick="show_source_picker();return false;">explorer</a></div>
         <div class="control"><a href="#" onclick="show_tools();return false;">tools</a></div>
@@ -134,7 +134,38 @@
     <script id="template_help" type="text/x-handlebars-template">
         <a href='#' onclick='show_main_menu();return false;'>help</a><hr>
         <div class='separator'></div>
-        {{{s}}}
+
+        <div class='help_item'>click on the selected tab to open the menu</div>
+        <div class='help_item'>right click the header to split the pane in two</div>
+        <div class='help_item'>click a file on the menu to open it in the current pane</div>
+        <div class='help_item'>middle click a tab to close it</div>
+        <br>
+        <div class='help_item'>--- general commands ---</div>
+        <div class='help_item'>open menu : ctrl + space</div>
+        <div class='help_item'>save file : ctrl + s</div>
+        <div class='help_item'>save all : ctrl + shift + s</div>
+        <div class='help_item'>new file : alt + n</div>
+        <div class='help_item'>reload : ctrl + r</div>
+        <div class='help_item'>close file : ctrl + x</div>
+        <div class='help_item'>go to : ctrl + g</div>
+        <div class='help_item'>go to previous file : alt + ,</div>
+        <div class='help_item'>go to next file : alt + .</div>
+        <div class='help_item'>move file to the left : alt + shift + ,</div>
+        <div class='help_item'>move file to the right : alt + shift + .</div>
+        <div class='help_item'>split horizontally : alt + h</div>
+        <div class='help_item'>split vertically : alt + v</div>
+        <br>
+        <div class='help_item'>--- explorer commands ---</div>
+        <div class='help_item'>make a file: mkfile [name]</div>
+        <div class='help_item'>remove file: rmfile [name]</div>
+        <div class='help_item'>make a directory: mkdir [name]</div>
+        <div class='help_item'>remove directory: rmdir [name]</div>
+        <div class='help_item'>rename file: renfile [file][new_name]</div>
+        <div class='help_item'>rename directory: rendir [dir][new_name]</div>
+        <br>
+        <div class='help_item'>------</div>
+        <div class='help_item'><a target='_blank' href='https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts'>click here for editor shortcuts</a></div>
+        
     </script>
 
 
@@ -159,6 +190,13 @@
             <div class='cell'>background color</div><div class='cell'><input id="input_header_background_color" value="{{header_background_color}}"></div>
             
             <div class='v15'></div>
+
+            <div class='cell'>selected tab</div> <div class='cell'>
+                <select id="selected_tab">
+                    <option>bold</option>
+                    <option>underline</option>
+                </select>
+            </div>
 
         </div>
         </div>
@@ -431,7 +469,7 @@
 
 
     <script id="template_iframe" type="text/x-handlebars-template">
-        <iframe class='iframe' id="iframe{{id}}-{{url}}" src="{{url}}">
+        <iframe class='iframe' id="iframe{{id}}" src="{{url}}">
     </script>
 
 
