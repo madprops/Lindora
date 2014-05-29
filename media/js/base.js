@@ -527,7 +527,7 @@ function open_url(url, container)
     {
         blurCallback: function()
         {
-            var cid = $("[id='iframe" + file.id + "']").parent().find('.container_id').val()
+            var cid = $("[id='iframe" + file.name + "']").parent().find('.container_id').val()
             current_container = get_container(cid);
             hide_ruler();
             hide_menu();
