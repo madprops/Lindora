@@ -518,12 +518,12 @@ function open_url(url, container)
     {
         url = "http://" + url;
     }
-    var file = load_url_file(url, container)
-    template = template_iframe({id:file.id,url:url});
+    var file = load_url_file(url, container)    
+    template = template_iframe({id:file.name,url:url});
     $("#outer_header" + container.id).after(template)
     $('#editor' + container.id).css('display','none');
     fix_height();
-    $("[id='iframe" + file.id + "']").iframeTracker(
+    $("[id='iframe" + file.name + "']").iframeTracker(
     {
         blurCallback: function()
         {
@@ -2621,7 +2621,7 @@ function show_file(file)
     })
     if(file.name.indexOf('http://') !== -1)
     {
-        $el = $("[id='iframe" + file.id + "']").css('display','block');
+        $el = $("[id='iframe" + file.name + "']").css('display','block');
         $('#editor' + current_container.id).css('display','none');
         fix_height();
     }
@@ -2677,7 +2677,7 @@ function load_file(name, text, container)
 function load_url_file(url, container)
 {
     file = new File()
-    file.name = url;
+    file.name = url + get_all_files().length;
     file.head = url.replace('http://', '');
     file.tail = url;
     file.header = url;
@@ -3021,7 +3021,6 @@ function get_container_files(container)
 }
 function new_file(container)
 {
-    console.log(container);
     file = load_file('new', '', container);
     make_tabs(container)
     return file;
