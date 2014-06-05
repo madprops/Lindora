@@ -509,15 +509,24 @@ function open_input_url()
 }
 function open_url(url, container)
 {
+    hide_menu();
     if(container === undefined)
     {
         container = current_container;
     }
-    hide_menu();
+    var cfiles = container.files;
+    for(var i=0; i<cfiles.length; i++)
+    {
+        if(cfiles[i].name === url)
+        {
+            return false;
+        }
+    }
     if(url.indexOf('http') == -1)
     {
         url = "http://" + url;
     }
+    console.log(url);
     var file = load_url_file(url, container)    
     template = template_iframe({id:file.name,url:url});
     $("#outer_header" + container.id).after(template)
@@ -533,7 +542,7 @@ function open_url(url, container)
             hide_menu();
         }
     });
-    save_url(url);
+    save_url(url)
     for(var i=0; i<files_to_open.length; i++)
     {
         var f = files_to_open[i];
@@ -2677,7 +2686,7 @@ function load_file(name, text, container)
 function load_url_file(url, container)
 {
     file = new File()
-    file.name = url + get_all_files().length;
+    file.name = url;
     file.head = url.replace('http://', '');
     file.tail = url;
     file.header = url;
@@ -3006,18 +3015,6 @@ function make_all_tabs()
     {
         make_tabs(containers[i]);
     }
-}
-function get_container_files(container)
-{
-    var dfiles = [];
-    for(var i=0; i<files.length; i++)
-    {
-        if(files[i].container === container)
-        {
-            dfiles.push(files[i]);
-        }
-    }
-    return dfiles;
 }
 function new_file(container)
 {
