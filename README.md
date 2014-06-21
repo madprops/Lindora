@@ -2,7 +2,7 @@ lindora
 =======
 
 online code editor
-[live demo](http://lindora.webfactional.com)
+[live demo](http://lindora.localghost.webfactional.com)
 
 ![](http://i.imgur.com/4NyG3qs.png)
 
