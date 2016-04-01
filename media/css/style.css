@@ -129,8 +129,8 @@ a.ftp_directory_link:link, a.ftp_directory_link:visited, a.ftp_directory_link:ho
 }
 .main_menu
 {
-    float: left;
-    padding-right: 1.7em;
+	float: left;
+	font-weight: bold;
     cursor: pointer;
 }
 .editor
@@ -369,14 +369,19 @@ iframe
 .tab
 {
     float: left;
-    padding-right:1.7em;
-    cursor:pointer;
+    min-width: 8em;
+    max-width: 8em;
+    padding: 0 0.8em;
+    cursor: pointer;
 }
 
 .selected_tab
 {
     float: left;
-    padding-right:1.7em;
+    min-width: 8em;
+    max-width: 8em;
+    padding: 0 0.8em;
+    border-bottom: 5px solid #3265A4; /* blue */
     cursor:pointer;    
 }
 
