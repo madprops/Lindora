@@ -174,12 +174,11 @@ function File()
 }
 function get_current_file()
 {
-    c = current_container;
-    for(var i=0;i<files.length;i++)
+    for(var i=0;i<current_container.files.length;i++)
     {
-        if(c.editor.getSession() == files[i].session)
+        if(c.editor.getSession() == current.container.files[i].session)
         {
-            return files[i];
+            return current.container.files[i];
         }
     }
 }
@@ -347,7 +346,10 @@ var changetimer = (function()
             symbol_selected_down();
             if(autosave === 'yes')
             {
-                save_file(current_container.file)
+                if(current_container.file.name.substring(0, 5) !== 'new__')
+                {
+                    save_file(current_container.file, 'automatic')
+                }
             }
         }, 3000);
     };
@@ -726,7 +728,7 @@ function save_session()
     })
     $clone.find('.tab').each(function()
     {
-        if($(this).attr('title').substring(0,3) === 'new')
+        if($(this).attr('title').substring(0,5) === 'new__')
         {
             $(this).remove();
         }
@@ -805,11 +807,14 @@ function activate_mousewheel(id)
 }
 function get_file(name)
 {
-    for(var i=0;i<files.length;i++)
+    for(var i=0;i<containers.length;i++)
     {
-        if(files[i].name==name)
+        for(var j=0;j<containers[i].files.length;j++)
         {
-            return files[i];
+            if(containers[i].files[j].name==name)
+            {
+                return containers[i].files[j];
+            }
         }
     }
 }
@@ -1131,7 +1136,7 @@ function save_as_explorer(path, action)
             make_tabs(current_container);
             hide_menu();
             set_mode(current_container.file.name)
-            save_file(current_container.file)
+            save_file(current_container.file, 'manual')
             $.get('/remove_file/',
             {
                 name:old_name
@@ -1139,6 +1144,7 @@ function save_as_explorer(path, action)
             function(data) 
             {
             });
+            save_session();
         }
         else if(data['status'] == 'nodir')
         {
@@ -1194,7 +1200,7 @@ function save_as_ftp_explorer(path, action)
             make_tabs(current_container);
             hide_menu();
             set_mode(current_container.file.name)
-            save_file(current_container.file)
+            save_file(current_container.file, 'manual')
             $.get('/remove_file/',
             {
                 name:old_name
@@ -2044,7 +2050,7 @@ function activate_key_detection()
             // s - save
             if(code == 83)
             {
-                save_file(current_container.file);
+                save_file(current_container.file, 'manual');
                 e.preventDefault();
             }
             // space - menu
@@ -2054,11 +2060,11 @@ function activate_key_detection()
                 e.preventDefault();
             } 
             // r - reload
-            if(code == 82)
+/*            if(code == 82)
             {
                 reload();
                 e.preventDefault();
-            }  
+            }  */
 
         }
         if(e.altKey)
@@ -2086,11 +2092,11 @@ function activate_key_detection()
                 return false;
             }
             // n - new file
-            if(code == 78)
+/*            if(code == 78)
             {
                 new_file(current_container);
                 e.preventDefault();
-            } 
+            } */
             // h - split horizontal
             if(code == 72)
             {
@@ -2183,10 +2189,10 @@ function save_all()
     var files = get_text_files();
     for(var i=0;i<files.length;i++)
     {
-        save_file(files[i]);
+        save_file(files[i], 'manual');
     }
 }
-function save_file(file)
+function save_file(file, method)
 {
     if(current_container.file == '')
     {
@@ -2196,7 +2202,7 @@ function save_file(file)
     {
         file = current_container.file
     }
-    if(file.name.substring(0,3) === 'new')
+    if(file.name.substring(0,5) === 'new__')
     {
         save_as_picker();
         return false;
@@ -2216,7 +2222,10 @@ function save_file(file)
     {
         if(data['status'] == 'ok')
         {
-            hide_menu();
+            if(method === 'manual')
+            {
+                hide_menu();
+            }
             return false;
         }
         return false;
@@ -2539,7 +2548,7 @@ function logout()
 }        
 function open_file(name, container)
 {
-    if(name.substring(0,3) === 'new')
+    if(name.substring(0,5) === 'new__')
     {
         new_file(container);
         return false;
@@ -2804,10 +2813,10 @@ function prepare_file(name, text, container)
 }
 function load_file(name, text, container)
 {
-    if(name.substring(0,3) === 'new')
+    if(name.substring(0,5) === 'new__')
     {
         new_files += 1
-        name = 'new' + new_files
+        name = "new__" + new_files
     }
     file = prepare_file(name, text, container);
     container.editor.setSession(file.session);
@@ -2921,15 +2930,8 @@ function clone_file(file, container)
 }
 function reload_file(data)
 {
-    for(var i=0;i<files.length;i++)
-    {
-        if(files[i].name == data['name'])
-        {
-            files[i].session.setValue(data['text']);
-            get_editor().setSession(files[i].session);
-            break;
-        }
-    }
+    current_container.file.session.setValue(data['text']);
+    get_editor().setSession(current_container.file.session);
     get_editor().focus();
     set_mode(data['name']);
     set_title(get_head(data['name']));
@@ -3155,7 +3157,7 @@ function make_all_tabs()
 }
 function new_file(container)
 {
-    file = load_file('new', '', container);
+    file = load_file('new__', '', container);
     make_tabs(container)
     return file;
 }
