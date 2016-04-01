@@ -28,10 +28,6 @@ To run:
 - Install Django
 - Install pysftp with pip
 - Run python manage.py migrate
-- Run python manage.py makemigrations server
-- Run python migrate server
-
-(The sequence of the migrations may not work sometimes and you might have to try a different approach)
 
 Then just:
 - python manage.py runserver (unless you're running it in production which you will need to do something entirely different)
