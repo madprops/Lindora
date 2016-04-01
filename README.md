@@ -2,7 +2,7 @@ Lindora
 =======
 
 Online Code Editor
-[live demo](http://lindora.brostack.com)
+[Live Demo](http://lindora.brostack.com)
 
 [![click to see video](http://i.imgur.com/ioQJ5Jo.jpg)](https://www.youtube.com/watch?v=Te5FTY6YWto)
 
@@ -16,7 +16,7 @@ Online Code Editor
 - Very customizable appearance
 - Vim and emacs keyboard mode
 
-## RUNNING
+## Running
 
 Lindora is built on Django in python2, tested 1.8.* and 1.9.* and a big part of it is built in javascript/Jquery with a lot of help from Handlebars for rendering templates. 
 It depends on the Ace editor and JqueryUI. All files needed are included except pysftp which you must install with pip.
