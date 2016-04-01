@@ -2,9 +2,9 @@ lindora
 =======
 
 online code editor
-[live demo](http://lindora.localghost.webfactional.com)
+[live demo](http://lindora.brostack.com)
 
-![](http://i.imgur.com/4NyG3qs.png)
+![](http://i.imgur.com/ioQJ5Jo.jpg)
 
 features:
 - work directly from your server through FTP
