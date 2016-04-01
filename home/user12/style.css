@@ -1,0 +1,178 @@
+#keycode
+{
+    padding:20px;
+    font-size:18px;
+    font-weight: bold;
+}
+
+.result
+{
+    resize:none;
+    width:98.4%;
+}
+
+.tab
+{
+    float: left;
+    padding-right:1.7em;
+    cursor:pointer;
+}
+
+.selected_tab
+{
+    float: left;
+    padding-right:1.7em;
+    cursor:pointer;  
+    font-weight: bold;  
+}
+
+.v1
+{
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.v08
+{
+    padding-top: 0.8em;
+    padding-bottom: 0.8em;
+}
+
+.v06
+{
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
+}
+
+.v03
+{
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+}
+
+.v15
+{
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+}
+
+.v2
+{
+    padding-top: 2em;
+    padding-bottom: 2em;
+}
+
+.suggestions_holder
+{
+    width: 16em;
+    max-height: 8em;
+    border: 0.09em solid black;
+    z-index: 9999;
+    position: fixed;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: white;
+}
+
+.suggestion_item
+{
+    width: 100%;
+    height: 100%;
+    color: #353535;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    padding-left: 0.5em;
+}
+.suggestion_item_selected
+{
+    width: 100%;
+    height: 100%;
+    color: #353535;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    padding-left: 0.5em;
+    background-color: #EAECFA;
+}
+
+.symbols_holder
+{
+    width: 20%;
+    max-height: 8em;
+    border: 0.09em solid black;
+    z-index: 9999;
+    position: fixed;
+    background-color: white;
+    top: 0;
+    left: 50%;
+    margin: 0 0 0 -10.0%;
+}
+
+.symbols
+{
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.symbol_item
+{
+    width: 100%;
+    height: 100%;
+    color: #353535;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    padding-left: 0.5em;
+}
+
+.symbol_item_selected
+{
+    width: 100%;
+    height: 100%;
+    color: #353535;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    padding-left: 0.5em;
+    background-color: #EAECFA;
+}
+
+.symbols_input
+{
+    width: 93%;
+    padding: 0.3em;
+    outline: none;
+    border: 0px;
+}
+
+.loading
+{
+    padding-top:0.8em;
+    padding-left: 0.4em;
+    font-size: 1.4em;
+    letter-spacing: 0.14em;
+}
+
+.cozy
+{
+    padding: 0.3em;
+    font-size: 1em;
+    letter-spacing: 0.14em
+}
+
+.login_title
+{
+    font-size: 1.8em;
+    color: #E6E6E6;
+    letter-spacing: 0.14em;
+}
+
+.small
+{
+    font-size:0.8em;
+}
+
+.menu_space
+{
+    clear:both;
+    padding-top:0.2em;
+    padding-bottom:0.2em;
+}

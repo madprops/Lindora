@@ -40,14 +40,14 @@ var urls = [];
 function init(args)
 {
     HashHandler = ace.require('ace/keyboard/hash_handler').HashHandler;
-    EditSession = ace.require("ace/edit_session").EditSession;
-    UndoManager = ace.require("ace/undomanager").UndoManager;
-    lang = ace.require("ace/lib/lang");
+    EditSession = ace.require('ace/edit_session').EditSession;
+    UndoManager = ace.require('ace/undomanager').UndoManager;
+    lang = ace.require('ace/lib/lang');
     Range = ace.require('ace/range').Range;
-    fetch();
+    get_settings();
     compile_templates();
     register_helpers();
-    get_settings();
+    fetch();
     username = args['username'];
     csrf_token = args['csrf_token'];
     hide_menu();
@@ -312,7 +312,7 @@ var onchange = function()
 function create_editor(id)
 {
     editor = ace.edit("editor" + id);
-    editor.getSession().setMode("ace/mode/textfile");
+    editor.getSession().setMode("ace/mode/text");
     editor.renderer.setShowPrintMargin(false);
     editor.renderer.setShowGutter(false); 
     editor.renderer.setHighlightGutterLine(false); 
@@ -526,7 +526,6 @@ function open_url(url, container)
     {
         url = "http://" + url;
     }
-    console.log(url);
     var file = load_url_file(url, container)    
     template = template_iframe({id:file.name,url:url});
     $("#outer_header" + container.id).after(template)
@@ -623,9 +622,28 @@ function fetch()
             {
                 save_server(data['servers'][i]);
             }
-            urls = data['urls']
             sessions = data['sessions']
             load_session(data['session'])
+            return false;
+        }
+        return false;
+    });
+    return false;
+}
+function fetch2()
+{
+    $.get('/fetch/',
+        {
+        },
+    function(data) 
+    {
+        if(data['status'] == 'ok')
+        {
+            for(var i=0;i<data['servers'].length;i++)
+            {
+                save_server(data['servers'][i]);
+            }
+            sessions = data['sessions']
             return false;
         }
         return false;
@@ -768,6 +786,7 @@ function close_file(file)
         }
     }
     show_file(container.file);
+    sessiontimer();
 }
 function activate_mousewheel(id)
 {
@@ -925,6 +944,26 @@ function show_explorer(path)
     function(data) 
     {
         hide_overlay();
+        if(data['action'] === 'renfile')
+        {
+            rename_file(data['action_info'], data['action_info2']);
+            make_all_tabs();
+            save_session();
+        }
+        if(data['action'] === 'rendir')
+        {
+            rename_dir(data['action_info'], data['action_info2']);
+            make_all_tabs();
+            save_session();
+        }
+        if(data['action'] === 'rmfile')
+        {
+            remove_file(data['action_info']);
+        }
+        if(data['action'] === 'rmdir')
+        {
+            remove_dir(data['action_info']);
+        }
         if(data['status'] == 'list')
         {
             last_working_path = data['path'];
@@ -960,7 +999,6 @@ function show_explorer(path)
         else if(data['status'] == 'open')
         {
             open_file(data['path'], current_container, true);
-            hide_menu();
         }
         else if(data['status'] == 'nodir')
         {
@@ -968,6 +1006,78 @@ function show_explorer(path)
         }
         return false;
     });
+}
+function rename_file(op, np)
+{
+    for(i=0; i<containers.length; i++)
+    {
+        for(j=0; j<containers[i].files.length; j++)
+        {
+            var file = containers[i].files[j];
+            if(file.name === op)
+            {
+                file.name = np;
+                file.head = np.split('/').pop();
+                file.header = make_header(file.name);
+                set_mode(file.name);
+            }
+        }
+    }
+}
+function rename_dir(op, np)
+{
+    for(i=0; i<containers.length; i++)
+    {
+        for(j=0; j<containers[i].files.length; j++)
+        {
+            var file = containers[i].files[j];
+            var dir = file.name.split('/').slice(0, -1).join('/');
+            if(dir === op)
+            {
+                file.name = np + '/' + file.head;
+                file.header = make_header(file.name);
+            }
+        }
+    }
+}
+function remove_file(path)
+{
+    var files_to_remove = [];
+    for(i=0; i<containers.length; i++)
+    {
+        for(j=0; j<containers[i].files.length; j++)
+        {
+            var file = containers[i].files[j];
+            if(file.name === path)
+            {
+                files_to_remove.push(file);
+            }
+        }
+    }
+    for(z=0; z<files_to_remove.length; z++)
+    {
+        close_file(files_to_remove[z]);
+    }
+}
+function remove_dir(path)
+{
+    var files_to_remove = [];
+    for(i=0; i<containers.length; i++)
+    {
+        for(j=0; j<containers[i].files.length; j++)
+        {
+            var file = containers[i].files[j];
+            var dir = file.name.split('/').slice(0, -1).join('/');
+            if(dir.substring(0, path.length) === path)
+            {
+                files_to_remove.push(file);
+            }
+        }
+    }
+    for(z=0; z<files_to_remove.length; z++)
+    {
+        close_file(files_to_remove[z]);
+    }
 }
 function save_as_picker()
 {
@@ -998,7 +1108,7 @@ function save_as_explorer(path, action)
             {
                 close_on_back = false;
             }
-            s = template_save_as_ftp_explorer(
+            s = template_save_as_explorer(
             {
                 username:username,
                 path:data['path'],
@@ -1147,6 +1257,26 @@ function show_ftp_explorer(path)
     function(data) 
     {
         hide_overlay();
+        if(data['action'] === 'renfile')
+        {
+            rename_file(data['action_info'], data['action_info2']);
+            make_all_tabs();
+            save_session();
+        }
+        if(data['action'] === 'rendir')
+        {
+            rename_dir(data['action_info'], data['action_info2']);
+            make_all_tabs();
+            save_session();
+        }
+        if(data['action'] === 'rmfile')
+        {
+            remove_file(data['action_info']);
+        }
+        if(data['action'] === 'rmdir')
+        {
+            remove_dir(data['action_info']);
+        }
         if(data['status'] == 'list')
         {
             set_last_ftp_server_path(data['path']);
@@ -1183,7 +1313,6 @@ function show_ftp_explorer(path)
         else if(data['status'] == 'open')
         {
             open_file(data['path'], current_container, true);
-            hide_menu();
         }
         else if(data['status'] == 'nodir')
         {
@@ -1210,7 +1339,13 @@ function connect_new_server()
         if(data['status'] == 'ok')
         {
             show_ftp_explorer(data['name']);
+            fetch2();
             return false;
+        }
+        else
+        {
+            hide_menu();
+            alert('there was an error connecting to the server');
         }
         return false;
     });
@@ -1222,7 +1357,7 @@ function hide_ftp_browser()
 }
 function open_menu()
 {
-    if($('#outer_menu').css("visibility") == "visible")
+    if($('#outer_menu').css("visibility") === "visible")
     {
         hide_menu();
         return false;
@@ -1297,7 +1432,6 @@ function bind_file_list_menu(id)
             {
                 var name = el.parent().find('.nameholder').val();
                 el.remove();
-                remove_file(name);
             }
         });
     })
@@ -2020,6 +2154,11 @@ function activate_key_detection()
                 session_edit_enter();
                 e.preventDefault;
             }
+            if($('#new_ftp_server').css('visibility') === 'visible')
+            {
+                connect_new_server();
+                e.preventDefault;
+            }
         }
     });
     return false;
@@ -2077,6 +2216,7 @@ function save_file(file)
     {
         if(data['status'] == 'ok')
         {
+            hide_menu();
             return false;
         }
         return false;
@@ -2225,7 +2365,7 @@ function show_theme_picker()
     s = template_theme_picker({themes:themes});
     set_menu(s);
 }
-function get_settings()
+function get_settings(fetch)
 {
     $.get('/get_settings/',
         {
@@ -2340,6 +2480,9 @@ function set_settings()
 {
     set_theme(theme);
     $('.editor').css('font-size', editor_font_size);
+    $('.main_menu').css('font-size', header_font_size);
+    $('.main_menu').css('color', header_font_color);
+    $('.main_menu').css('font-family', header_font_family);
     $('.header').css('font-size', header_font_size);
     $('.header').css('color', header_font_color);
     $('.header').css('font-family', header_font_family);
@@ -2353,7 +2496,7 @@ function set_settings()
         $('.outer_header').css('display', 'none');
     }
     set_keyboard_mode(keyboard_mode)
-    for(i=0; i<containers.length; i++)
+    for(i=0; i < containers.length; i++)
     {
         try
         {
@@ -2443,9 +2586,9 @@ function open_file(name, container)
     name = name.replace("&amp;", "&");
     notify('loading file...');
     $.get('/open_file/',
-        {
-            name:name
-        },
+    {
+        name:name
+    },
     function(data) 
     {
         if(data['status'] == 'ok')
@@ -2454,7 +2597,6 @@ function open_file(name, container)
         }
         else
         {
-            remove_file(name);
         }
         make_tabs(get_container(0));
         for(var i=0; i<files_to_open.length; i++)
@@ -2641,10 +2783,10 @@ function show_file(file)
     }
     current_container.file = file;
     set_title(get_head(file.name));
-    make_tabs(current_container)
+    make_tabs(current_container);
     current_container.editor.setSession(file.session);
     current_container.editor.focus();
-    set_mode(file.name)
+    set_mode(file.name);
 }
 function prepare_file(name, text, container)
 {
@@ -2801,7 +2943,7 @@ function set_mode(name)
 }
 function get_mode(name)
 {
-    mode = 'textfile';
+    mode = 'text';
     extension = name.split(/[.]+/).pop();
     switch(extension)
     {
@@ -2986,18 +3128,13 @@ function make_tabs(container)
             var name = $(this).attr('title')
             if(e.which == 1)
             {
-                if($(this).hasClass('selected_tab'))
-                {
-                    show_main_menu()
-                }
-                else
-                {
-                    show_file_by_name(name);
-                }
+                show_file_by_name(name);
             }
             if(e.which == 2)
             {
-                var file = get_file_by_container(name,current_container);
+                var id = $(this).closest('.container').attr('id').replace('container', '')
+                var container = get_container(id)
+                var file = get_file_by_container(name, container);
                 close_file(file);
                 e.preventDefault();
             }
@@ -3495,4 +3632,9 @@ function hide_overlay()
 {
     $('#menu_overlay').css('visibility', 'hidden')
     $('#loading_animation').css('visibility', 'hidden')
+}
+
+function menu_click()
+{
+    open_menu();
 }

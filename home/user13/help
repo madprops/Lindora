@@ -1,0 +1,33 @@
+welcome and thank you for trying Lindora!
+this is a code editor with a lot of features 
+which we would love you to try
+
+click on the selected tab to open the menu
+right click the header to split the pane in two
+click a file on the menu to open it in the current pane
+middle click a tab to close it
+
+--- general commands ---
+
+open menu : ctrl + space
+save file : ctrl + s
+save all : ctrl + shift + s
+new file : alt + n
+reload : ctrl + r
+close file : ctrl + x
+go to : ctrl + g
+go to previous file : alt + ,
+go to next file : alt + .
+move file to the left : alt + shift + ,
+move file to the right : alt + shift + .
+split horizontally : alt + h
+split vertically : alt + v
+
+--- explorer commands ---
+
+make a file: mkfile [name]
+remove file: rmfile [name]
+make a directory: mkdir [name]
+remove directory: rmdir [name]
+rename file: renfile [file][new_name]
+rename directory: rendir [dir][new_name]

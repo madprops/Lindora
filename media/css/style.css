@@ -106,7 +106,7 @@ a.ftp_directory_link:link, a.ftp_directory_link:visited, a.ftp_directory_link:ho
     overflow-x: auto;  
     z-index: 900000;
     visibility: hidden;
-    background-image: url('/media/img/loading.gif');
+    background-image: url('/site_media/img/loading.gif');
     background-repeat:no-repeat;
     background-position: center center;
 }
@@ -126,6 +126,12 @@ a.ftp_directory_link:link, a.ftp_directory_link:visited, a.ftp_directory_link:ho
     white-space: nowrap;
     text-overflow: ellipsis;
     outline:none;
+}
+.main_menu
+{
+    float: left;
+    padding-right: 1.7em;
+    cursor: pointer;
 }
 .editor
 {

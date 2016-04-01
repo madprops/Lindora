@@ -3,7 +3,7 @@
 import os
 import re
 import json
-import ftplib
+import pysftp
 import shutil
 import tempfile
 from os import listdir
@@ -16,14 +16,14 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.models import User
 from server.models import *
 
-root = "/home/yo/radide/"
-home = "/home/yo/radide/home"
+root = os.path.dirname(os.path.dirname(__file__))
+home = os.path.join(root, 'home')
 
 #root = "/home/localghost/webapps/lindora/radide"
 #home = "/home/localghost/webapps/lindora/radide/home"
 
 def log(s):
-	with open(root + 'log', 'a') as log:
+	with open(root + '\log', 'a') as log:
 		log.write(str(s) + '\n\n');
 
 def get_profile(request):
@@ -46,7 +46,7 @@ def create_c(request):
 
 def main(request):
 	if not request.user.is_authenticated():
-		start_demo_session(request	)
+		start_demo_session(request)
 	c = create_c(request)
 	return render_to_response('main.html', c)
 
@@ -54,13 +54,16 @@ def start_demo_session(request):
 	username = 'user' + str(User.objects.count())
 	user = User.objects.create_user(username, 'no@email.com', 'tehpasswd')
 	p = Profile(user=user)
-	p.theme = "tomorrow_night_eighties"
+	p.theme = 'tomorrow_night_eighties'
 	session = Session(user=user, name='default', content=demo_session(user.username))
 	session.save()
 	p.current_session = session
 	p.save()
 	os.mkdir(home + '/' + user.username)
-	os.system('cp -a ' + home + '/demo/. ' + home + '/' + user.username)
+	if os.name == 'nt':
+		os.system('robocopy ' + home + '\demo\ ' + home + '\\' + user.username)
+	else:
+		os.system('cp -a ' + home + '/demo/. ' + home + '/' + user.username)
 	user.backend='django.contrib.auth.backends.ModelBackend'
 	auth_login(request, user)
 	
@@ -75,28 +78,27 @@ def save_file(request):
 	if '&' in name:
 		server = name.split('&')[0]
 		fname = name.split('&')[1]
+		if fname[0] != '/':
+			fname = '/' + fname
 		user = server.split('@')[0]
 		host = server.split('@')[1]
 		server = Server.objects.get(user=request.user, host=host,username=user)
-		ftp = ftplib.FTP(server.host,server.username,server.password)
+		ftp = pysftp.Connection(server.host, username=server.username, password=server.password)
 		fn = "" + request.user.username + str(datetime.datetime.now())
+		fn = fn.replace(' ', '').replace(':', '').replace('\\\\', '\\').replace('C\\', 'C:\\')
 		with open (fn, "wb") as f:
 			f.write(text)
-		with open (fn, "r") as f:
-			try:
-				ftp.storbinary("stor " + fname, f)
-			except:
-				status = "error"
+		ftp.put(remotepath=fname, localpath=fn)
 		os.remove(fn)
 		try:
-			ftp.quit()
+			ftp.close()
 		except:
 			pass
 	else:
 		with open(home+name, 'wb') as f:
 			f.write(text)
 	data = {'status':status}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def login(request):
 	c = {}
@@ -145,8 +147,6 @@ def register(request):
 	session.save()
 	p.current_session = session
 	p.save()
-	os.mkdir(home + '/' + user.username)
-	os.system('cp -a ' + home + '/demo/. ' + home + '/' + user.username)
 	user.backend='django.contrib.auth.backends.ModelBackend'
 	auth_login(request, user)
 	return HttpResponseRedirect('/')
@@ -155,9 +155,10 @@ def default_session():
 	s = """
         <div id="container0" class="container" tabindex="1">
             <div id="outer_header0" class="outer_header unselectable" style="background-color: rgb(45, 45, 45); display: block;">
-                <div id="header0" class="header" style="font-size: 18px; color: rgb(230, 230, 230); font-family: sans-serif;">
-                <div class="selected_tab tab" id="0^new1" title="new1" onclick="show_main_menu()"> new1 </div>
-    	</div>
+            	<span class='main_menu' onclick='menu_click();return false;'>menu</span>
+                <span id="header0" class="header" style="font-size: 18px; color: rgb(230, 230, 230); font-family: sans-serif;">
+                	<div class="selected_tab tab" id="0^new1" title="new1" onclick="show_main_menu()"> new1 </div>
+    			</span>
             </div>
             <div class="editor ace_editor ace-tomorrow-night-eighties ace_dark" id="editor0" style="height: 405px; font-size: 18px;"></div>
             <input class="container_id" type="hidden" value="0">
@@ -169,14 +170,14 @@ def demo_session(username):
 	s = """
 	<div id="container0" class="container" tabindex="1">
 	            <div id="outer_header0" class="outer_header unselectable" style="background-color: rgb(45, 45, 45); display: block;">
-	                <div id="header0" class="header" style="font-size: 18px; color: rgb(230, 230, 230); font-family: sans-serif;">
-	        	            
-	                <div class="tab" id="0^/""" + username + """/views.py" title="/""" + username + """/views.py"> views.py </div>
-	     			<div class="tab" id="0^/""" + username + """/main.html" title="/""" + username + """/main.html"> main.html </div>
-	                <div class="tab" id="0^/""" + username + """/base.js" title="/""" + username + """/base.js"> base.js </div>
-	         		<div class="tab" id="0^/""" + username + """/style.css" title="/""" + username + """/style.css"> style.css </div>    
-	         		<div class="tab" id="0^/""" + username + """/help" title="/""" + username + """/help"> help </div>    
-	    </div>
+	            	<span class='main_menu' onclick='menu_click();return false;'>menu</span>
+	                <span id="header0" class="header" style="font-size: 18px; color: rgb(230, 230, 230); font-family: sans-serif;">   
+		                <div class="tab" id="0^/""" + username + """/views.py" title="/""" + username + """/views.py"> views.py </div>
+		     			<div class="tab" id="0^/""" + username + """/main.html" title="/""" + username + """/main.html"> main.html </div>
+		                <div class="tab" id="0^/""" + username + """/base.js" title="/""" + username + """/base.js"> base.js </div>
+		         		<div class="tab" id="0^/""" + username + """/style.css" title="/""" + username + """/style.css"> style.css </div>    
+		         		<div class="tab" id="0^/""" + username + """/help" title="/""" + username + """/help"> help </div>    
+	    			</span>
 	            </div>
 	            <div class="editor ace_editor ace-tomorrow-night-eighties ace_nobold ace_dark" id="editor0" style="height: 355px; font-size: 18px; display: block;"></div>
 	            <input class="container_id" type="hidden" value="0">
@@ -236,16 +237,19 @@ def connect_new_server(request):
 	try:
 		Server.objects.get(user=request.user, host=host, username=user, password=password)
 	except:
-		ftp = ftplib.FTP(host,user,password)
-		s = Server(user=request.user, host=host, username=user, password=password)
-		s.save()
 		try:
-			ftp.quit()
+			ftp = pysftp.Connection(host, username=user, password=password)
+			s = Server(user=request.user, host=host, username=user, password=password)
+			s.save()
+		except:
+			status = 'error'
+		try:
+			ftp.close()
 		except:
 			pass
 	name = user + "@" + host
 	data = {'status':status, 'name':name}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def fetch(request):
 	if not request.user.is_authenticated():
@@ -257,12 +261,8 @@ def fetch(request):
 	p = get_profile(request)
 	session = p.current_session.content
 	sl = get_sessionlist(request)
-	urls = Url.objects.filter(user=request.user).order_by('-id')
-	ul = []
-	for u in urls:
-		ul.append(u.name)
-	data = {'status':'ok','servers':ls, 'session':session, 'sessions':sl, 'urls':ul}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	data = {'status':'ok','servers':ls, 'session':session, 'sessions':sl}
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def change_theme(request):
 	name = request.GET['name']
@@ -271,40 +271,38 @@ def change_theme(request):
 		p.theme = name
 		p.save()
 	data = {'status':'ok','name':name}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def logout(request):
 	auth_logout(request)
 	data = {'status':'ok'}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def open_file(request):
 	if not request.user.is_authenticated():
 		request.user = User.objects.get(username="guest")
 	status = "ok"
-	name = request.GET['name']
+	name = request.GET['name'].strip()
 	if name[-1] == '/':
 		name = name[:-1]
 	if '&' in name:
 		server = name.split('&')[0]
 		fname = name.split('&')[1]
+		if fname[0] != '/':
+			fname = '/' + fname
 		host = server.split('@')[1]
 		user = server.split('@')[0]
 		server = Server.objects.get(host=host,username=user,user=request.user)
-		ftp = ftplib.FTP(server.host,server.username,server.password)
-		fn = "" + request.user.username + str(datetime.datetime.now())
-		with open (fn, "wb") as f:
-			def callback(data):
-				f.write(data)
-			try:
-				ftp.retrbinary('RETR ' + fname, callback)
-			except:
-				status = "error"
+		ftp = pysftp.Connection(server.host, username=server.username, password=server.password)
+		fn =  home + '\\' + request.user.username + str(datetime.datetime.now())
+		fn = fn.replace(' ', '').replace(':', '').replace('\\\\', '\\').replace('C\\', 'C:\\')
+		open(fn, 'w')
+		ftp.get(fname, localpath=fn)
 		with open (fn, "r") as f:
 			datfile = f.read()
 		os.remove(fn)
 		try:
-			ftp.quit()
+			ftp.close()
 		except:
 			pass
 	else:
@@ -319,7 +317,7 @@ def open_file(request):
 		f = File(user=request.user,name=name, last_accesed=datetime.datetime.now())
 		f.save()
 	data = {'status':status, 'text':datfile, 'name':name}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def open_local_file(request):
 	status = 'ok'
@@ -335,7 +333,7 @@ def open_local_file(request):
 		f = File(user=request.user,name=path, last_accesed=datetime.datetime.now())
 		f.save()
 	data = {'fullname':path, 'status':status, 'text':datfile}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def check_extension(path):
 	if path[-1] == '/':
@@ -347,7 +345,11 @@ def check_extension(path):
 		return False
 
 def explorer(request):
+
 	status = 'list'
+	action = ''
+	action_info = ''
+	action_info2 = ''
 
 	if not request.user.is_authenticated():
 		request.user = User.objects.get(username="guest")
@@ -372,11 +374,12 @@ def explorer(request):
 			pass
 		open(home + path, "a")
 		
-
 	elif 'rmfile ' in path.split('/')[-1]:
 		path = path.replace('rmfile ', '')
 		try:
 			os.remove(home + path);
+			action = 'rmfile'
+			action_info = path
 			path = get_back(path)
 		except:
 			pass
@@ -385,6 +388,8 @@ def explorer(request):
 		path = path.replace('rmdir ', '')
 		try:
 			shutil.rmtree(home + path)
+			action = 'rmdir'
+			action_info = path
 			path = get_back(path)
 		except:
 			pass
@@ -397,22 +402,31 @@ def explorer(request):
 			pass
 
 	elif 'renfile ' in path.split('/')[-1]:
-		path = path.replace('ren ', '')
+		path = path.replace('renfile ', '')
 		nf = path.split('/')[-1].split(' ')[-1]
 		of = path.split('/')[-1].split(' ')[0]
 		op = get_back(path) + '/' + of
 		np = get_back(path) + '/' + nf
 		os.rename(home + op, home + np);
 		path = get_back(path)
+		action = 'renfile'
+		action_info = op
+		action_info2 = np
 
 	elif 'rendir ' in path.split('/')[-1]:
-		path = path.replace('ren ', '')
+		path = path.replace('rendir ', '')
 		nf = path.split('/')[-1].split(' ')[-1]
 		of = path.split('/')[-1].split(' ')[0]
 		op = get_back(path) + '/' + of
 		np = get_back(path) + '/' + nf
 		os.rename(home + op, home + np);
 		path = get_back(path)
+		action = 'rendir'
+		action_info = op
+		action_info2 = np
+
+	elif '..' in path.split('/')[-1] or '.. ' in path.split('/')[-1]:
+		path = get_back(path.replace('.. ', '').replace('..', ''))
 
 	else:
 		if mode == 'save_as' and action == 'save':
@@ -420,7 +434,7 @@ def explorer(request):
 				os.makedirs(home + os.path.split(path)[0]);
 			except:
 				pass
-			open(home + path, "a")
+			open(home + path, 'a')
 			try:
 				f = File.objects.get(user=request.user,name=path)
 				f.last_accesed = datetime.datetime.now()
@@ -448,8 +462,8 @@ def explorer(request):
 		elif '[Errno 2]' in str(e):
 			status = 'nodir'
 	back = get_back(path)
-	data = {'path':path, 'status':status, 'files':files, 'file':datfile, 'back':back}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	data = {'path':path, 'status':status, 'files':files, 'file':datfile, 'back':back, 'action':action, 'action_info':action_info, 'action_info2':action_info2}
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def open_ftp_file(request,path):
 	status = 'ok'
@@ -458,18 +472,19 @@ def open_ftp_file(request,path):
 	user = server_name.split('@')[0]
 	host = server_name.split('@')[1]
 	server = Server.objects.get(user=request.user, host=host,username=user)
-	ftp = ftplib.FTP(server.host,server.username,server.password)
-	root = ftp.pwd()
+	ftp = pysftp.Connection(server.host, username=server.username, password=server.password)
+	root = ftp.pwd
 	if name != '':
 		try:
 			ftp.cwd(name)
 		except:
 			status = 'file'
 			fn = "" + request.user.username + str(datetime.datetime.now())
+			fn = fn.replace(' ', '').replace(':', '').replace('\\\\', '\\').replace('C\\', 'C:\\')
 			with open (fn, "wb") as f:
 				def callback(data):
 					f.write(data)
-				ftp.retrbinary('RETR ' + name, callback)
+				ftp.get(name)
 			with open (fn, "r") as f:
 				datfile = f.read()
 			os.remove(fn)
@@ -480,11 +495,11 @@ def open_ftp_file(request,path):
 				nf = File(user=request.user,name=path,last_accesed=datetime.datetime.now())
 				nf.save()
 			data = {'text':datfile, 'status':status, name:nf.name}
-			return HttpResponse(json.dumps(data), mimetype="application/json")
-	files = ftp.nlst()
-	directory = ftp.pwd()
+			return HttpResponse(json.dumps(data), content_type="application/json")
+	files = ftp.listdir()
+	directory = ftp.pwd
 	try:
-		ftp.quit()
+		ftp.close()
 	except:
 		pass
 	return {'files':files, 'directory':directory, 'root':root, 'status':status}
@@ -496,37 +511,40 @@ def get_ftp_files(request,path):
 	user = server_name.split('@')[0]
 	host = server_name.split('@')[1]
 	server = Server.objects.get(user=request.user, host=host,username=user)
-	ftp = ftplib.FTP(server.host,server.username,server.password)
-	root = ftp.pwd()
+	ftp = pysftp.Connection(server.host, username=server.username, password=server.password)
+	root = ftp.pwd
 	files = []
-	if name != '':
-		try:
-			ftp.cwd(name)
-		except:
-			files = ftp.nlst(get_ftp_back(path).split('&')[1])
-			if name in files:
-				status = 'open'
+	if name == '':
+		name = '/'
+	if name[0] != '/':
+		name = '/' + name
+	if ftp.isfile(name):
+		status = 'open'
+	elif ftp.isdir(name):
+		ftp.cwd(name)
+		filesx = ftp.listdir()
+		for f in filesx:
+			f = f.replace(" ", "")
+			if ftp.isdir(f):
+				files.append('+ ' + f)
 			else:
-				status = 'nodir'
-	filesx = ftp.nlst()
-	for f in filesx:
-		f = f.replace(" ", "")
-		try:
-			ftp.cwd(f)
-			ftp.cwd('..')
-			files.append('+ ' + f)
-		except:
-			files.append(f)
-	files.sort()
-	directory = ftp.pwd()
+				files.append(f)
+	else:
+		status = 'nodir'
+	directory = ftp.pwd
+	files = sorted(files)
 	try:
-		ftp.quit()
+		ftp.close()
 	except:
 		pass
 	return {'files':files, 'directory':directory, 'root':root, 'status':status}
 
 def ftp_explorer(request):
+
 	status = 'list'
+	action = ''
+	action_info = ''
+	action_info2 = ''
 
 	if not request.user.is_authenticated():
 		request.user = User.objects.get(username="guest")
@@ -545,40 +563,56 @@ def ftp_explorer(request):
 
 	if 'mkfile ' in path.split('/')[-1]:
 		path = path.replace('mkfile ', '')
-		make_new_ftp_file(request,path)
-		path = get_ftp_back(path)
-
-	elif 'rmfile ' in path.split('/')[-1]:
-		path = path.replace('rmfile ', '')
-		delete_ftp_file(request,path)
-		path = get_ftp_back(path)
+		make_new_ftp_file(request, path)
+		status = 'open'
 
 	elif 'mkdir ' in path.split('/')[-1]:
 		path = path.replace('mkdir ', '')
-		make_new_ftp_directory(request,path)
+		make_new_ftp_directory(request, path)
+
+	elif 'rmfile ' in path.split('/')[-1]:
+		path = path.replace('rmfile ', '')
+		delete_ftp_file(request, path)
+		action = 'rmdir'
+		action_info = path
+		path = get_ftp_back(path)
 
 	elif 'rmdir ' in path.split('/')[-1]:
 		path = path.replace('rmdir ', '')
-		delete_ftp_directory(request,path)
+		delete_ftp_directory(request, path)
+		action = 'rmdir'
+		action_info = path
 		path = get_ftp_back(path)
 
 	elif 'renfile ' in path.split('/')[-1]:
-		path = path.replace('ren ', '')
+		path = path.replace('renfile ', '')
 		nf = path.split('/')[-1].split(' ')[-1]
 		of = path.split('/')[-1].split(' ')[0]
 		op = get_back(path) + '/' + of
 		np = get_back(path) + '/' + nf
-		rename_ftp_file(request,op,np)
-		path = get_back(path)
-
+		rename_ftp_file(request, op, np)
+		path = get_ftp_back(path)
+		action = 'renfile'
+		action_info = of
+		action_info2 = path + '/' + nf
 	elif 'rendir ' in path.split('/')[-1]:
-		path = path.replace('ren ', '')
+		path = path.replace('rendir ', '')
 		nf = path.split('/')[-1].split(' ')[-1]
 		of = path.split('/')[-1].split(' ')[0]
 		op = get_back(path) + '/' + of
 		np = get_back(path) + '/' + nf
-		rename_ftp_file(request,op,np)
-		path = get_back(path)
+		rename_ftp_file(request, op, np)
+		path = get_ftp_back(path)
+		action = 'rendir'
+		action_info = op
+		action_info2 = path + np
+		if action_info[0] == '/':
+			action_info = action_info[1:]
+		if action_info2[0] == '/':
+			action_info2 = action_info2[1:]
+
+	elif '..' in path.split('/')[-1] or '.. ' in path.split('/')[-1]:
+		path = get_ftp_back(path.replace('.. ', '').replace('..', ''))
 
 	else:
 		if mode == 'save_as' and action == 'save':
@@ -591,10 +625,11 @@ def ftp_explorer(request):
 				f = File(user=request.user,name=path, last_accesed=datetime.datetime.now())
 				f.save()
 
-	ftp_data = get_ftp_files(request,path)
-	status = ftp_data['status']
-	if ftp_data['status'] == 'list':
-		files = ftp_data['files']
+	if status == 'list':
+		ftp_data = get_ftp_files(request, path)
+		status = ftp_data['status']
+		if ftp_data['status'] == 'list':
+			files = ftp_data['files']
 
 	if path[-1] != '/' and path[-1] != '&':
 		path = path + '/'
@@ -607,69 +642,79 @@ def ftp_explorer(request):
 	if fake_path[-1] != '/':
 		fake_path = fake_path + '/'
 	back = get_ftp_back(path)
-	data = {'path':path, 'status':status, 'files':files, 'file':datfile, 'fake_path':fake_path, 'back':back}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	data = {'path':path, 'status':status, 'files':files, 'file':datfile, 'fake_path':fake_path, 'back':back, 'action':action, 'action_info':action_info, 'action_info2':action_info2}
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def get_ftp(request, server):
 	username = server.split('@')[0]
 	host = server.split('@')[1]
-	server = Server.objects.get(username=username,host=host,user=request.user)
-	return ftplib.FTP(server.host,server.username,server.password)
+	server = Server.objects.get(username=username, host=host, user=request.user)
+	return pysftp.Connection(server.host, username=server.username, password=server.password)
 
-def rename_ftp_file(request,op,np):
+def rename_ftp_file(request, op, np):
+	if op[0] == '/':
+		op = op[1:]
 	on = op.split('&')[1]
-	nn = np.split('&')[1]
+	if on[0] != '/':
+		on = '/' + on
+	if np[0] != '/':
+		np = '/' + np
 	server = op.split('&')[0]
+	server = server.replace('/', '')
 	ftp = get_ftp(request, server)
-	ftp.rename(on,nn)
+	ftp.rename(on, np)
 
-def make_new_ftp_file(request,path):
+def make_new_ftp_file(request, path):
 	name = path.split('&')[1]
+	if name[0] != '/':
+		name = '/' + name
 	server = path.split('&')[0]
 	ftp = get_ftp(request, server)
 	fn = "" + request.user.username + str(datetime.datetime.now())
+	fn = fn.replace(' ', '').replace(':', '').replace('\\\\', '\\').replace('C\\', 'C:\\')
 	files = get_ftp_files(request, get_ftp_back(path))['files']
 	if name.split('/')[-1] in files:
 		return False
-	open(fn, "a")
-	with open (fn, "r") as f:
-		ftp.storbinary("stor " + name, f)
+	open(fn, "w")
+	ftp.put(remotepath=name, localpath=fn)
 	os.remove(fn)
 
-def delete_ftp_file(request,path):
+def delete_ftp_file(request, path):
 	name = path.split('&')[1]
+	if name[0] != '/':
+		name = '/' + name
 	server = path.split('&')[0]
 	ftp = get_ftp(request, server)
 	ftp.delete(name)
 
-def make_new_ftp_directory(request,path):
+def make_new_ftp_directory(request, path):
 	name = path.split('&')[1]
+	if name[0] != '/':
+		name = '/' + name
 	server = path.split('&')[0]
 	ftp = get_ftp(request, server)
-	ftp.mkd(name)
+	ftp.mkdir(name)
 
 def delete_ftp_directory(request, path):
 	name = path.split('&')[1]
+	if name[0] != '/':
+		name = '/' + name
 	server = path.split('&')[0]
 	ftp = get_ftp(request, server)
 	rtree_ftp(ftp, name)
 
 def rtree_ftp(ftp, path):
-	wd = ftp.pwd()
-	try:
-		names = ftp.nlst(path)
-	except ftplib.all_errors as e:
-		return
+	wd = path
+	ftp.cwd(wd)
+	names = ftp.listdir(path)
 	for name in names:
 		if os.path.split(name)[1] in ('.', '..'): continue
-		try:
-			ftp.cwd(name)
-			ftp.cwd(wd)
-			rtree_ftp(ftp, name)
-		except ftplib.all_errors:
-			ftp.delete(name)
+		if ftp.isdir(name):
+			rtree_ftp(ftp, wd + '/' + name)
+		else:
+			ftp.remove(wd + '/' + name)
 	try:
-		ftp.rmd(path)
+		ftp.rmdir(path)
 	except:
 		pass
 
@@ -706,7 +751,7 @@ def get_settings(request):
 		'show_line_numbers':profile.show_line_numbers,
 		'keyboard_mode':profile.keyboard_mode,
 	}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def save_header_settings(request):
 	p = get_profile(request)
@@ -717,7 +762,7 @@ def save_header_settings(request):
 	p.header_selected_tab = request.GET['header_selected_tab']
 	p.save()
 	data = {'status':'ok'}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def save_editor_settings(request):
 	p = get_profile(request)
@@ -727,14 +772,14 @@ def save_editor_settings(request):
 	p.keyboard_mode = request.GET['keyboard_mode']
 	p.save()
 	data = {'status':'ok'}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def save_behaviour_settings(request):
 	p = get_profile(request)
 	p.autosave = request.GET['autosave']
 	p.save()
 	data = {'status':'ok'}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def remove_file(request):
 	if not request.user.is_authenticated():
@@ -743,7 +788,7 @@ def remove_file(request):
 	f = File.objects.get(user=request.user, name=name)
 	f.delete()
 	data = {'status':'ok'}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def save_session(request):
 	content = request.POST['content']
@@ -763,7 +808,7 @@ def rename_session(request):
 	else:
 		status = 'error'
 	data = {'status':status, 'sessions':get_sessionlist(request)}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def new_session(request):
 	last_id = Session.objects.filter(user=request.user).order_by('-id')[0].id
@@ -774,17 +819,16 @@ def new_session(request):
 	p.save()
 	status = 'ok'
 	data = {'status':status}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def remove_session(request):
 	name = request.POST['name'].strip()
-	log(name)
 	sessions = Session.objects.filter(name=name, user=request.user)
 	for s in sessions:
 		s.delete()
 	status = 'ok'
 	data = {'status':status, 'sessions':get_sessionlist(request)}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def get_sessionlist(request):
 	sessions = Session.objects.filter(user=request.user)
@@ -801,7 +845,7 @@ def change_session(request):
 	p.save()
 	status = 'ok'
 	data = {'status':status}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def save_url(request):
 	name = request.POST['url'];
@@ -813,7 +857,7 @@ def save_url(request):
 	url.save()
 	status = 'ok'
 	data = {'status':status}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def get_urls(request):
 	urls = Url.objects.filter(user=request.user).order_by('-id')
@@ -822,4 +866,4 @@ def get_urls(request):
 		ul.append(u.name)
 	status = 'ok'
 	data = {'status':status, 'urls':ul}
-	return HttpResponse(json.dumps(data), mimetype="application/json")
+	return HttpResponse(json.dumps(data), content_type="application/json")

@@ -2,10 +2,9 @@ welcome and thank you for trying Lindora!
 this is a code editor with a lot of features 
 which we would love you to try
 
-click on the selected tab to open the menu
 right click the header to split the pane in two
-click a file on the menu to open it in the current pane
-middle click a tab to close it
+open a file in a pane by selecting a file from the pane's menu
+middle click a tab to close it (only works in chome for now)
 
 --- general commands ---
 

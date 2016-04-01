@@ -1,24 +1,24 @@
 <!doctype html>
 <html>
 <head>
-    <title>radide</title>
-    <link rel="shortcut icon" href="/media/img/favicon.ico" type="image/x-icon">
+    <title> lindora </title>
+    <link rel="shortcut icon" href="/site_media/img/favicon.ico" type="image/x-icon">
     <link rel="icon" href="favicon.ico" type="image/x-icon"> 
-    <link rel="stylesheet" href="/media/css/style.css">
-    <link rel="stylesheet" href="/media/css/layout.css">
-    <link rel="stylesheet" href="/media/js/jquery-ui/themes/base/jquery.ui.base.css">
-    <link rel='stylesheet' href='/media/css/colorpicker.css' />
-    <script src='/media/js/jquery.js'></script>
-    <script src='/media/js/jquery-ui/ui/jquery-ui.js'></script>
-    <script src='/media/js/mousewheel.js'></script>
-    <script src='/media/js/colorpicker.js'></script>
-    <script src='/media/js/handlebars.js'></script>
-    <script src='/media/js/crap.js'></script>
-    <script src='/media/js/contextMenu.js'></script>
-    <script src='/media/js/iframetracker.js'></script>
-    <script src='/media/js/layout.js'></script>
-    <script src='/media/js/base.js'></script>
-    <script src='/media/ace/ace.js' type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" href="/site_media/css/style.css">
+    <link rel="stylesheet" href="/site_media/css/layout.css">
+    <link rel="stylesheet" href="/site_media/js/jquery-ui/themes/base/jquery.ui.base.css">
+    <link rel='stylesheet' href='/site_media/css/colorpicker.css' />
+    <script src='/site_media/js/jquery.js'></script>
+    <script src='/site_media/js/jquery-ui/ui/jquery-ui.js'></script>
+    <script src='/site_media/js/mousewheel.js'></script>
+    <script src='/site_media/js/colorpicker.js'></script>
+    <script src='/site_media/js/handlebars.js'></script>
+    <script src='/site_media/js/crap.js'></script>
+    <script src='/site_media/js/contextMenu.js'></script>
+    <script src='/site_media/js/iframetracker.js'></script>
+    <script src='/site_media/js/layout.js'></script>
+    <script src='/site_media/js/base.js'></script>
+    <script src='/site_media/js/ace/ace.js' type="text/javascript" charset="utf-8"></script>
 
     <script>
     $(function()
@@ -30,7 +30,6 @@
         });
     })
     </script>
-
 
 
     {% verbatim %}
@@ -47,7 +46,6 @@
         {{/each}}
         </div>
         <a class='item'href='#' onclick='show_new_ftp_server();return false;'>connect to a new server</a>
-        <a class='item' href='#' onclick="show_open_url();return false;">open url</a>
     </script>
 
     <script id="template_open_url" type="text/x-handlebars-template">
@@ -383,9 +381,9 @@
     </script>
 
     <script id="template_save_as_picker" type="text/x-handlebars-template">
-        <a href='#' onclick='show_main_menu();return false;'>select a destination</a><hr>
+        <a href='#' onclick='show_main_menu();return false;'> select a destination </a><hr>
         <div class='separator'></div>
-        <a href='#' class='item' onclick="save_as_explorer('', 'explore')">local drive</a>
+        <a href='#' class='item' onclick="save_as_explorer('', 'explore')"> local drive </a>
         {{#each servers}}
             <a href='#' class='item' onclick="save_as_ftp_explorer('{{this.name}}','explore');return false;">{{this.name}}</a>
         {{/each}}
@@ -460,7 +458,8 @@
     <script id="template_container" type="text/x-handlebars-template">
         <div id="container{{id}}" class="container" tabindex=1>
             <div id="outer_header{{id}}" class="outer_header unselectable">
-                <div id="header{{id}}" class="header"></div>
+                <span class='main_menu' onclick='menu_click();return false;'>menu</span>
+                <span id="header{{id}}" class="header"></span>
             </div>
             <div class='editor' id='editor{{id}}'></div>
             <input class="container_id" type='hidden' value={{id}}>
