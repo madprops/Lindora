@@ -43,4 +43,4 @@ This is what I do in production:
 
 ## License
 
-Release under the GNU Affero Public License Version 3
+Released under the GNU Affero Public License Version 3
