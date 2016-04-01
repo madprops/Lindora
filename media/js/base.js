@@ -759,14 +759,7 @@ function close_file(file)
             var file = files[i];
             if(files.length === 1)
             {
-                if(container.id !== 0)
-                {
-                    close_container($('#container' + container.id));   
-                }
-                else
-                {
-/*                    container.file = new_file(container)*/
-                }
+                close_container($('#container' + container.id));   
             }
             else
             {
@@ -1625,6 +1618,10 @@ function get_pane(id)
 function close_container(el)
 {
     container_id = el.find('.container_id').val();
+    if(container_id == 0)
+    {
+        return false;
+    }
     var id = el.parent().attr('id').substr(1)
     var letter = el.parent().attr('id').substr(0,1)
     $p = el.parent().parent();
@@ -2668,6 +2665,10 @@ function get_container(id)
 }
 function remove_container(id)
 {
+    if(id == 0)
+    {
+        return false;
+    }
     for(var i=0;i<containers.length;i++)
     {
         if(containers[i].id == id)
