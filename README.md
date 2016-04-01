@@ -2,9 +2,11 @@ Lindora
 =======
 
 Online Code Editor
-[Live Demo](http://lindora.brostack.com)
 
-[![click to see video](http://i.imgur.com/ioQJ5Jo.jpg)](https://www.youtube.com/watch?v=Te5FTY6YWto)
+[Live Demo](http://lindora.brostack.com)
+[Video Demostration](https://www.youtube.com/watch?v=Te5FTY6YWto)
+
+[![click to see video](http://i.imgur.com/ioQJ5Jo.jpg)](http://i.imgur.com/ioQJ5Jo.jpg)
 
 ## Features
 - Work directly from your server through sFTP
@@ -12,7 +14,7 @@ Online Code Editor
 - Split windows infinitely
 - Save sessions that remember your files and layout
 - Built-in file explorer
-- Tools to aid on web development
+- Tools to aid development
 - Very customizable appearance
 - Vim and emacs keyboard mode
 
