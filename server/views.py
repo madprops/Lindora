@@ -143,10 +143,15 @@ def register(request):
 	user = User.objects.create_user(username, email, password)
 	p = Profile(user=user)
 	p.theme = "tomorrow_night_eighties"
-	session = Session(user=user, name='default', content=default_session())
+	session = Session(user=user, name='default', content=demo_session(user.username))
 	session.save()
 	p.current_session = session
 	p.save()
+	os.mkdir(home + '/' + user.username)
+	if os.name == 'nt':
+		os.system('robocopy ' + home + '\demo\ ' + home + '\\' + user.username)
+	else:
+		os.system('cp -a ' + home + '/demo/. ' + home + '/' + user.username)
 	user.backend='django.contrib.auth.backends.ModelBackend'
 	auth_login(request, user)
 	return HttpResponseRedirect('/')
@@ -157,7 +162,6 @@ def default_session():
             <div id="outer_header0" class="outer_header unselectable" style="background-color: rgb(45, 45, 45); display: block;">
             	<span class='main_menu' onclick='menu_click();return false;'>menu</span>
                 <span id="header0" class="header" style="font-size: 18px; color: rgb(230, 230, 230); font-family: sans-serif;">
-                	<div class="selected_tab tab" id="0^new1" title="new1" onclick="show_main_menu()"> new1 </div>
     			</span>
             </div>
             <div class="editor ace_editor ace-tomorrow-night-eighties ace_dark" id="editor0" style="height: 405px; font-size: 18px;"></div>

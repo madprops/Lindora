@@ -129,8 +129,12 @@ function container_click_events(id)
 {
     hide_suggestions();
     hide_symbols();
-    current_container = get_container(id);
-    set_title(current_container.file.head);
+    try
+    {
+        current_container = get_container(id);
+        set_title(current_container.file.head);
+    }
+    catch(err){}
 }
 function start_layout(el)
 {
@@ -346,10 +350,7 @@ var changetimer = (function()
             symbol_selected_down();
             if(autosave === 'yes')
             {
-                if(current_container.file.name.substring(0, 5) !== 'new__')
-                {
-                    save_file(current_container.file, 'automatic')
-                }
+                save_file(current_container.file, 'automatic')
             }
         }, 3000);
     };
@@ -667,7 +668,7 @@ function load_session(s)
         num_files = $(this).find('.tab').length + $(this).find('.iframe').length
         if(num_files === 0)
         {
-            new_file(container);
+/*            new_file(container);*/
         }
         else
         {
@@ -726,13 +727,13 @@ function save_session()
     {
         $(this).remove()
     })
-    $clone.find('.tab').each(function()
+/*    $clone.find('.tab').each(function()
     {
         if($(this).attr('title').substring(0,5) === 'new__')
         {
             $(this).remove();
         }
-    })
+    })*/
     $.post('/save_session/',
         {
             content: $clone.html(),
@@ -764,7 +765,7 @@ function close_file(file)
                 }
                 else
                 {
-                    container.file = new_file(container)
+/*                    container.file = new_file(container)*/
                 }
             }
             else
@@ -2202,11 +2203,11 @@ function save_file(file, method)
     {
         file = current_container.file
     }
-    if(file.name.substring(0,5) === 'new__')
+/*    if(file.name.substring(0,5) === 'new__')
     {
         save_as_picker();
         return false;
-    }
+    }*/
     var fc = get_file_container(file);
 /*    if(fc)
     {
@@ -2548,11 +2549,11 @@ function logout()
 }        
 function open_file(name, container)
 {
-    if(name.substring(0,5) === 'new__')
+/*    if(name.substring(0,5) === 'new__')
     {
         new_file(container);
         return false;
-    }
+    }*/
     if(name=='')
     {
         return false;
@@ -2813,11 +2814,11 @@ function prepare_file(name, text, container)
 }
 function load_file(name, text, container)
 {
-    if(name.substring(0,5) === 'new__')
+/*    if(name.substring(0,5) === 'new__')
     {
         new_files += 1
         name = "new__" + new_files
-    }
+    }*/
     file = prepare_file(name, text, container);
     container.editor.setSession(file.session);
     container.editor.focus();
