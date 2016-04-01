@@ -21,12 +21,12 @@ Online Code Editor
 
 ## Running
 
-Lindora is built on Django in python2, tested 1.8.* and 1.9.* and a big part of it is built in javascript/Jquery with a lot of help from Handlebars for rendering templates. 
-It depends on the Ace editor and JqueryUI. All files needed are included except pysftp which you must install with pip.
+Lindora is built on Django in python2, tested 1.8.* and 1.9.* and a big part of it is built in javascript/Jquery with a lot of help from Handlebars for rendering templates. It's heavily based on the Ace editor which is included.
 
 To run: 
 - Install Django
 - Install pysftp with pip
+- Install sqlite3
 - Run python manage.py migrate
 
 Then just:
