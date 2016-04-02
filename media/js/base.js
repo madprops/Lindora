@@ -2603,6 +2603,7 @@ function open_file(name, container)
             }
             else
             {
+                show_file(files[i]);
                 for(var i=0; i<files_to_open.length; i++)
                 {
                     var f = files_to_open[i];
