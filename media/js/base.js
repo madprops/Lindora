@@ -36,6 +36,7 @@ var lang;
 var files_to_open = [];
 var sessions = [];
 var urls = [];
+var empty_session;
 
 function init(args)
 {
@@ -61,6 +62,7 @@ function init(args)
     start_ruler();
     start_suggestions();
     start_symbols();
+    empty_session = new EditSession('');
     //reload_iframe_url();
 }
 
@@ -752,6 +754,8 @@ function close_file(file)
     }
     var container = file.container
     var files = container.files;
+    var show_empty = false;
+    var closed_container = false;
     for(var i=0; i<files.length; i++)
     {
         if(files[i] === file)
@@ -759,7 +763,15 @@ function close_file(file)
             var file = files[i];
             if(files.length === 1)
             {
-                close_container($('#container' + container.id));   
+                if(container.id == 0)
+                {
+                    show_empty = true;
+                }
+                else
+                {
+                    close_container($('#container' + container.id));   
+                    closed_container = true;
+                }
             }
             else
             {
@@ -781,7 +793,14 @@ function close_file(file)
             }
         }
     }
-    show_file(container.file);
+    if(!closed_container)
+    {
+        show_file(container.file);
+    }
+    if(show_empty)
+    {
+        containers[0].editor.setSession(empty_session); 
+    }
     sessiontimer();
 }
 function activate_mousewheel(id)
@@ -2562,7 +2581,25 @@ function open_file(name, container)
         {
             if(files[i].container !== container)
             {
-                clone_file(files[i], container)
+                var clone = true;
+                var cloned = null;
+                for(var z=0; z<container.files.length; z++)
+                {
+                    if(container.files[z].name === name)
+                    {
+                        clone = false;
+                        cloned = container.files[z];
+                        break;
+                    }
+                }
+                if(clone)
+                {
+                    clone_file(files[i], container);
+                }
+                else
+                {
+                    show_file(cloned);
+                }
             }
             else
             {
@@ -2581,6 +2618,7 @@ function open_file(name, container)
                     }
                 }
             }
+            hide_menu();
             return false;
         }
     }
